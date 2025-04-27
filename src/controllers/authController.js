@@ -1,0 +1,63 @@
+const User = require("../models/userModel");
+const bcrypt = require("bcrypt");
+const generateToken = require("../utils/generateToken");
+const rootDir = require("../utils/path");
+const path = require("path");
+
+
+exports.getRegisterationPage=async(req, res)=>{
+    res.sendFile(path.join(rootDir, "views", "signup.html"));
+}
+
+exports.getLoginPage = async(req, res)=>{
+    res.sendFile(path.join(rootDir, "views", "login.html"));
+}
+exports.register = async (req, res) => {
+  try {
+    const { name, email, phone, password } = req.body;
+
+    if (!name || !email || !phone || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(409).json({ message: "Email already registered" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await User.create({
+      name,
+      email,
+      phone,
+      password: hashedPassword,
+    });
+
+    res.status(201).json({ message: "Registration successful" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error during registration" });
+  }
+};
+
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;    
+
+    const user = await User.findOne({ where: { email } });
+    if (!user) return res.status(401).json({ message: "Invalid credentials" });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
+
+    const token = generateToken(user.id);
+    
+
+    res.status(200).json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error during login" });
+  }
+};
+
