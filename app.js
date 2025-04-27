@@ -6,6 +6,7 @@ const sequelize = require("./src/utils/db");
 
 const authRoutes = require("./src/routes/authRoutes");
 const dashboardRoutes = require("./src/routes/dashboardRoutes")
+const serviceRoutes = require("./src/routes/serviceRoutes");
 
 // Built-in Express middleware for parsing JSON
 const app = express();
@@ -19,6 +20,7 @@ app.use(express.static(path.join(__dirname, "src", "public")));
 
 app.use("/api", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/services", serviceRoutes);
 
 
 sequelize
