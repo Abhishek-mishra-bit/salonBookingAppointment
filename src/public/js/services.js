@@ -84,7 +84,9 @@ serviceForm.addEventListener("submit", async (e) => {
 
 async function editService(id) {
   try {
-    const res = await axios.get("/api/services");
+    const res = await axios.get("/api/services", {
+        headers: { Authorization: token }
+      });
     const service = res.data.find(s => s.id === id);
 
     document.getElementById("serviceId").value = service.id;

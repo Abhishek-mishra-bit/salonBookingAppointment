@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Book Appointment | Customer</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/booking.css">
+</head>
+<body>
+
+<!-- Navbar/Header -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container d-flex justify-content-between align-items-center">
+    <a class="navbar-brand fw-bold" href="#">Salon Booking</a>
+    <div class="d-flex gap-3">
+      <a href="/api/dashboard/page" class="btn btn-primary">Dashboard</a>
+      <a href="/api/services/page" class="btn btn-warning">Manage Services</a>
+      <a href="/api/staff/page" class="btn btn-success">Manage Staff</a>
+      <button class="btn btn-outline-danger" id="logoutBtn" onclick="logout()">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<!-- Loader -->
+<div id="loader" class="loader-overlay" style="display:none;">
+  <div class="spinner"></div>
+</div>
+
+<!-- Booking Form -->
+<main class="container my-5">
+  <h1 class="text-center mb-4">Book Your Appointment</h1>
+
+  <form id="bookingForm" class="bg-white p-4 rounded shadow">
+    <div class="mb-3">
+      <label for="serviceSelect" class="form-label">Select Service</label>
+      <select id="serviceSelect" class="form-select" required></select>
+    </div>
+
+    <div class="mb-3">
+      <label for="staffSelect" class="form-label">Select Staff</label>
+      <select id="staffSelect" class="form-select" required></select>
+    </div>
+
+    <div class="mb-3">
+      <label for="dateInput" class="form-label">Select Date</label>
+      <input type="date" id="dateInput" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+      <label for="timeInput" class="form-label">Select Time</label>
+      <input type="time" id="timeInput" class="form-control" required />
+    </div>
+
+    <button type="submit" class="btn btn-success w-100">Book Now</button>
+  </form>
+  <!-- 🗓️ List of Appointments -->
+<h2 class="text-center mt-5 mb-4">Your Appointments</h2>
+
+<table class="table table-striped" id="appointmentsTable">
+  <thead>
+    <tr>
+      <th>Service</th>
+      <th>Staff</th>
+      <th>Date</th>
+      <th>Time</th>
+      <th>Actions</th> <!-- Cancel / Reschedule -->
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Dynamic booking rows will be inserted here -->
+  </tbody>
+</table>
+
+</main>
+
+<!-- Footer -->
+<footer class="text-center py-3 bg-light">
+  &copy; 2025 Salon Booking App
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="/js/booking.js"></script>
+
+<script>
+function logout() {
+  localStorage.removeItem('token');
+  window.location.href = "/html/login.html";
+}
+</script>
+
+</body>
+</html>

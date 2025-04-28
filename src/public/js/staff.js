@@ -2,6 +2,8 @@
 const loader = document.getElementById("loader");
 const staffForm = document.getElementById("staffForm");
 const staffTable = document.getElementById("staffTable").querySelector("tbody");
+const token = localStorage.getItem('token');
+
 
 document.addEventListener("DOMContentLoaded", () => {
   fetchAllStaff();
@@ -12,7 +14,9 @@ async function fetchAllStaff() {
     const token = localStorage.getItem("token")
   loader.style.display = "flex";
   try {
-    const res = await axios.get(`/api/staff`);
+    const res = await axios.get(`/api/staff`, {
+        headers: { Authorization: token }
+      });
     const staffList = res.data;
 
     staffTable.innerHTML = "";
@@ -47,20 +51,25 @@ staffForm.addEventListener("submit", async (e) => {
   const staffId = document.getElementById("staffId").value;
   const name = document.getElementById("name").value.trim();
   const specialization = document.getElementById("specialization").value.trim();
+  const email = document.getElementById("email").value.trim();
   const available = document.getElementById("available").value.trim().toLowerCase() === "true";
 
-  const staffData = { name, specialization, available };
-
+  const staffData = { name, specialization, email, available };
+  const token = localStorage.getItem('token');
   try {
     loader.style.display = "flex";
 
     if (staffId) {
       // Update
-      await axios.put(`/api/staff/${staffId}`, staffData);
+      await axios.put(`/api/staff/${staffId}`, staffData, {
+        headers: { Authorization: token }
+      });
       alert("✅ Staff updated successfully!");
     } else {
       // Create
-      await axios.post(`/api/staff`, staffData);
+      await axios.post(`/api/staff`, staffData, {
+        headers: { Authorization: token }
+      });
       alert("✅ Staff added successfully!");
     }
 
@@ -79,12 +88,15 @@ staffForm.addEventListener("submit", async (e) => {
 // 🌟 Populate form to edit staff
 async function editStaff(id) {
   try {
-    const res = await axios.get(`${apiUrl}/${id}`);
+    const res = await axios.get(`${apiUrl}/${id}`, {
+        headers: { Authorization: token }
+      });
     const staff = res.data;
 
     document.getElementById("staffId").value = staff.id;
     document.getElementById("name").value = staff.name;
     document.getElementById("specialization").value = staff.specialization;
+    document.getElementById("email").value = staff.email;
     document.getElementById("available").value = staff.available ? "true" : "false";
   } catch (err) {
     console.error("Error loading staff:", err);
