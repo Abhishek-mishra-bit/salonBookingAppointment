@@ -3,6 +3,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../utils/db');
 const Service = require("../models/serviceModel");
 const Staff = require("../models/staffModel")
+const User = require("../models/userModel");
 
 const Booking = sequelize.define('Booking', {
   id: {
@@ -38,5 +39,6 @@ const Booking = sequelize.define('Booking', {
 
 Booking.belongsTo(Service, { foreignKey: 'serviceId' });
 Booking.belongsTo(Staff, { foreignKey: 'staffId' });
+Booking.belongsTo(User, { foreignKey: 'userId' });
 
 module.exports = Booking;

@@ -99,6 +99,8 @@
 
 const baseUrl = window.location.origin;
 const token = localStorage.getItem("token");
+const payNowBtn = document.getElementById("payNowBtn");
+
 
 // Elements
 const serviceSelect = document.getElementById("serviceSelect");
@@ -289,4 +291,43 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchServices();
   fetchStaff();
   loadAppointments();
+});
+
+
+payNowBtn.addEventListener("click", async () => {
+  try {
+    const res = await axios.post("/api/payment/create-order", {
+      bookingId: currentBookingId
+    }, {
+      headers: { Authorization: token }
+    });
+
+    const options = {
+      key: res.data.key_id,
+      amount: res.data.amount,
+      currency: "INR",
+      name: "Salon Booking",
+      description: "Service Booking Payment",
+      order_id: res.data.orderId,
+      handler: async function (response) {
+        await axios.post("/api/payment/update-status", {
+          bookingId: currentBookingId,
+          success: true,
+          orderId: response.razorpay_order_id,
+          payment_id: response.razorpay_payment_id
+        }, {
+          headers: { Authorization: token }
+        });
+        alert("✅ Payment successful!");
+        payNowBtn.style.display = "none";
+      },
+      theme: { color: "#0d6efd" }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+  } catch (err) {
+    console.error("Payment initiation error", err);
+    alert("Error initiating payment");
+  }
 });

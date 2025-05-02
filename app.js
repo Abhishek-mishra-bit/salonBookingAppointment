@@ -9,6 +9,9 @@ const dashboardRoutes = require("./src/routes/dashboardRoutes")
 const serviceRoutes = require("./src/routes/serviceRoutes");
 const staffRoutes = require("./src/routes/staffRoutes");
 const bookingRoutes = require("./src/routes/bookingRoutes")
+const adminRoutes = require('./src/routes/adminRoutes');
+const paymentRoutes = require("./src/routes/paymentRoutes");
+
 
 
 // Built-in Express middleware for parsing JSON
@@ -26,6 +29,9 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api/staff", staffRoutes);
 app.use('/api/booking', bookingRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/payment", paymentRoutes);
+
 
 
 

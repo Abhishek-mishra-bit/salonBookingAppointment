@@ -55,6 +55,11 @@
 
     <button type="submit" class="btn btn-success w-100">Book Now</button>
   </form>
+  <!-- Razorpay Pay Button -->
+  <div class="text-center mt-4">
+    <button class="btn btn-success mt-4" onclick="payNow()">💳 Pay Now</button>
+  </div>
+
   <!-- 🗓️ List of Appointments -->
 <h2 class="text-center mt-5 mb-4">Your Appointments</h2>
 
@@ -81,7 +86,10 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="/js/booking.js"></script>
+<script src="/js/payment.js"></script>
+
 
 <script>
 function logout() {
