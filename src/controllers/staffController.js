@@ -1,4 +1,6 @@
 const Staff = require('../models/staffModel');
+const Review = require('../models/reviewModel');
+const { fn, col } = require('sequelize');
 const rootDir = require("../utils/path");
 const path = require("path");
 
@@ -23,13 +25,39 @@ exports.addStaff = async (req, res) => {
 // ➡ Get All Staff Members
 exports.getAllStaff = async (req, res) => {
   try {
-    const staffs = await Staff.findAll();
-    res.status(200).json(staffs);
-  } catch (error) {
-    console.error("Error fetching staff:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    const staffRows = await Staff.findAll({
+      attributes: {
+        include: [
+          // Compute the average of rating as avgRating
+          [ fn('AVG', col('rating')), 'avgRating' ]
+        ]
+      },
+      include: [{
+        model: Review,
+        as: 'Reviews',
+        attributes: [],   // no need to select any Review columns
+        required: false   // LEFT JOIN so staff with no reviews are included
+      }],
+      group: ['Staff.id']  // group by staff ID to aggregate reviews
+    });
+
+    // Format results: parse the avg (it comes as string/number) and default if null
+    const staffList = staffRows.map(staff => {
+      // Destructure fields from staff instance
+      const { id, name, specialization, email } = staff;
+      let avg = staff.getDataValue('avgRating');
+      let rating = (avg !== null) 
+                   ? parseFloat(avg).toFixed(1)         // round to 1 decimal
+                   : 'No ratings yet';                  // default text
+      return { id, name, specialization, email, avgRating: rating };
+    });
+
+    res.json(staffList);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error fetching staff' });
   }
-};
+}
 
 // ➡ Update Staff
 exports.updateStaff = async (req, res) => {

@@ -7,7 +7,7 @@ const { createService, getServices, updateService, deleteService, getServicesPag
 router.get("/page", getServicesPage );
 
 router.post("/", protect, createService);
-router.get("/", getServices);
+router.get("/",protect, getServices);
 router.patch("/:id", protect, updateService);
 router.delete("/:id", protect, deleteService);
 

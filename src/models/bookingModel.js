@@ -34,6 +34,23 @@ const Booking = sequelize.define('Booking', {
   status: {
     type: DataTypes.STRING,
     defaultValue: 'confirmed' // confirmed, cancelled, rescheduled
+  },
+  paymentStatus: {
+    type: DataTypes.STRING,
+    defaultValue: 'pending', // pending, paid, failed
+    allowNull: false
+  },
+  transactionId: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  amountPaid: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: true
+  },
+  paymentDate: {
+    type: DataTypes.DATE,
+    allowNull: true
   }
 });
 

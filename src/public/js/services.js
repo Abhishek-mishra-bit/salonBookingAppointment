@@ -20,7 +20,8 @@ window.addEventListener('load', () => {
 
 async function fetchServices() {
   try {
-    const res = await axios.get("/api/services");
+    const res = await axios.get("/api/services", {
+      headers: { Authorization: token }});
     const services = res.data;
     servicesTable.innerHTML = "";
 
@@ -56,19 +57,22 @@ serviceForm.addEventListener("submit", async (e) => {
   const duration = parseInt(document.getElementById("duration").value);
 
   const serviceData = { name, description, price, duration };
+  console.log("Service data:", serviceData);
 
   try {
     if (id) {
       // Update service
-      await axios.patch(`/api/services/${id}`, serviceData, {
+      const updateResponse = await axios.patch(`/api/services/${id}`, serviceData, {
         headers: { Authorization: token }
       });
+      console.log("Service update response:", updateResponse.data);
       showToast("✏️ Service updated successfully!");
     } else {
       // Create new service
-      await axios.post("/api/services", serviceData, {
+      const createResponse = await axios.post("/api/services", serviceData, {
         headers: { Authorization: token }
       });
+      console.log("Service create response:", createResponse.data);
       showToast("✅ Service added successfully!");
     }
 
@@ -77,8 +81,8 @@ serviceForm.addEventListener("submit", async (e) => {
     fetchServices();
 
   } catch (err) {
-    console.error(err);
-    alert("Failed to save service");
+    console.error("Service creation error:", err.response?.data || err.message);
+    showToast("❌ Failed to save service: " + (err.response?.data?.message || "Please try again"));
   }
 });
 

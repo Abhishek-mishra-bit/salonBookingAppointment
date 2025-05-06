@@ -1,35 +1,141 @@
 // controllers/bookingController.js
 const Booking = require('../models/bookingModel');
-const jwt = require('jsonwebtoken');
 const rootDir = require("../utils/path");
 const path = require("path");
 const Service = require("../models/serviceModel");
 const Staff = require("../models/staffModel")
 
 exports.getBookingPage = async (req, res) =>{
-    res.sendFile(path.join(rootDir,"views","booking.html"));
-    
+    res.sendFile(path.join(rootDir,"views","booking.html"));    
 }
 
 exports.createBooking = async (req, res) => {
   try {
-    const token = req.headers.authorization;
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
+    console.log('Creating booking:', req.body);
+    console.log('User ID:', req.user.id);
+    
     const { serviceId, staffId, date, time } = req.body;
+    const service = await Service.findByPk(serviceId);
+    if (!service) {
+      return res.status(404).json({ error: 'Service not found' });
+    }
+
+    const staff = await Staff.findByPk(staffId);
+    if (!staff) {
+      return res.status(404).json({ error: 'Staff not found' });
+    }
 
     const booking = await Booking.create({
       serviceId,
       staffId,
-      userId: decoded.id,
+      userId: req.user.id,
       date,
-      time
+      time,
+      status: 'pending',
+      paymentStatus: 'pending',
+      amountPaid: service.price
     });
 
-    res.status(201).json({ message: 'Booking successful!', booking });
+    
+    res.status(201).json({ 
+      message: 'Booking created successfully!', 
+      booking,
+      servicePrice: service.price
+    });
   } catch (err) {
     console.error('Booking Error:', err);
     res.status(500).json({ error: 'Failed to create booking' });
+  }
+};
+
+// Get user's bookings
+exports.getUserBookings = async (req, res) => {
+  try {   
+
+    const bookings = await Booking.findAll({
+      where: {
+        userId: req.user.id
+      },
+      include: [
+        {
+          model: Service,
+          attributes: ['id', 'name', 'price']
+        },
+        {
+          model: Staff,
+          attributes: ['id', 'name', 'specialization']
+        }
+      ]
+    });
+
+    res.json(bookings);
+  } catch (err) {
+    console.error('Error fetching user bookings:', err);
+    res.status(500).json({ error: 'Failed to fetch bookings' });
+  }
+};
+
+// Process Payment
+exports.processPayment = async (req, res) => {
+  try {
+    const { bookingId, transactionId } = req.body;
+  
+
+    const booking = await Booking.findByPk(bookingId);
+    
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+
+    if (booking.userId !== req.user.id) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    if (booking.paymentStatus === 'paid') {
+      return res.status(400).json({ error: 'Payment already processed' });
+    }
+
+    // Update payment status
+    booking.paymentStatus = 'paid';
+    booking.transactionId = transactionId;
+    booking.paymentDate = new Date();
+    await booking.save();
+
+    res.json({ 
+      message: 'Payment successful!', 
+      bookingId: booking.id,
+      transactionId: booking.transactionId
+    });
+  } catch (err) {
+    console.error('Payment Error:', err);
+    res.status(500).json({ error: 'Failed to process payment' });
+  }
+};
+
+// Get user's bookings with payment status
+exports.getUserBookings = async (req, res) => {
+  try {
+    
+
+    const bookings = await Booking.findAll({
+      where: { userId: req.user.id },
+      include: [
+        { 
+          model: Service, 
+          attributes: ['id', 'name', 'price'] 
+        },
+        { 
+          model: Staff, 
+          attributes: ['id', 'name', 'specialization'] 
+        }
+      ],
+      order: [['date', 'DESC']]
+    });
+
+    res.json(bookings);
+  } catch (err) {
+    console.error('Fetching bookings failed:', err);
+    res.status(500).json({ error: 'Failed to fetch bookings' });
   }
 };
 

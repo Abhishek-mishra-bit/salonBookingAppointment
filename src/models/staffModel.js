@@ -33,4 +33,9 @@ const Staff = sequelize.define('Staff', {
   timestamps: true
 });
 
+// Export the model first
 module.exports = Staff;
+
+// Then set up associations
+const Review = require("./reviewModel");
+Staff.hasMany(Review, { foreignKey: 'staffId'});

@@ -21,7 +21,7 @@ const Payment = sequelize.define("Payment", {
   },
   razorpayPaymentId: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   amount: {
     type: DataTypes.INTEGER,

@@ -3,6 +3,8 @@ const path = require("path");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const sequelize = require("./src/utils/db");
+const Review = require("./src/models/reviewModel")
+const cron_job = require("./src/cron/reminderJob");
 
 const authRoutes = require("./src/routes/authRoutes");
 const dashboardRoutes = require("./src/routes/dashboardRoutes")
@@ -11,6 +13,8 @@ const staffRoutes = require("./src/routes/staffRoutes");
 const bookingRoutes = require("./src/routes/bookingRoutes")
 const adminRoutes = require('./src/routes/adminRoutes');
 const paymentRoutes = require("./src/routes/paymentRoutes");
+const reviewRoutes = require('./src/routes/reviewRoutes');
+
 
 
 
@@ -31,15 +35,13 @@ app.use("/api/staff", staffRoutes);
 app.use('/api/booking', bookingRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/payment", paymentRoutes);
-
-
-
-
+app.use('/api/reviews', reviewRoutes);
 
 sequelize
   .sync({ force: false })
   .then((res) => {
     app.listen(3000, () => {
+      cron_job;
       console.log("Server running on port 3000");
     });
   })
