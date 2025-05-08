@@ -14,7 +14,17 @@ exports.getLoginPage = async(req, res)=>{
 }
 exports.register = async (req, res) => {
   try {
-    const { name, email, phone, password } = req.body;
+    let { name, email, phone, password, role } = req.body;
+
+    // Accept role from query string if not in body
+    if (!role && req.query.role) {
+      role = req.query.role;
+    }
+    const allowedRoles = ['customer', 'staff', 'admin'];
+    if (!role) role = 'customer';
+    if (!allowedRoles.includes(role)) {
+      return res.status(400).json({ message: "Invalid role selected." });
+    }
 
     if (!name || !email || !phone || !password) {
       return res.status(400).json({ message: "All fields are required" });
@@ -32,9 +42,10 @@ exports.register = async (req, res) => {
       email,
       phone,
       password: hashedPassword,
+      role
     });
 
-    res.status(201).json({ message: "Registration successful" });
+    res.status(201).json({ message: "Registration successful", user: { id: user.id, name: user.name, email: user.email, phone: user.phone, role: user.role } });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error during registration" });
@@ -51,10 +62,13 @@ exports.login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
-    const token = generateToken(user.id);
+    // Check role if provided
     
 
-    res.status(200).json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
+    const token = generateToken(user.id);
+    console.log("token is::", token);
+    
+    res.status(200).json({ token, user: { id: user.id, name: user.name, email: user.email} });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error during login" });

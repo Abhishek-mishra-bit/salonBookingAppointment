@@ -3,25 +3,239 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Book Appointment | Customer</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="/css/booking.css">
-  <!-- Add Inter font -->
+  <title>Book Appointment | Glamour Salon</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --salon-primary: #8a6d62; /* Earthy brown */
+      --salon-secondary: #d4b8a7; /* Light beige */
+      --salon-accent: #c17c74; /* Dusty rose */
+      --salon-dark: #4a3f35; /* Dark brown */
+      --salon-light: #f8f4f0; /* Cream */
+      --salon-success: #9aab89; /* Sage green */
+      --salon-info: #7aa2b8; /* Soft blue */
+    }
+    
+    body {
+      background-color: var(--salon-light);
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .navbar {
+      background-color: white !important;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+      padding: 15px 0;
+    }
+    
+    .navbar-brand {
+      color: var(--salon-dark) !important;
+      font-weight: 700;
+      font-size: 1.5rem;
+    }
+    
+    .navbar-brand span.text-primary {
+      color: var(--salon-primary) !important;
+    }
+    
+    .btn-primary {
+      background-color: var(--salon-primary);
+      border-color: var(--salon-primary);
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--salon-dark);
+      border-color: var(--salon-dark);
+    }
+    
+    .btn-warning {
+      background-color: var(--salon-accent);
+      border-color: var(--salon-accent);
+      color: white;
+    }
+    
+    .btn-warning:hover {
+      background-color: #b56a63;
+      border-color: #b56a63;
+    }
+    
+    .btn-success {
+      background-color: var(--salon-success);
+      border-color: var(--salon-success);
+    }
+    
+    .btn-success:hover {
+      background-color: #7e8f6d;
+      border-color: #7e8f6d;
+    }
+    
+    .card {
+      border: none;
+      border-radius: 10px;
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+    }
+    
+    .card-title {
+      color: var(--salon-dark);
+      font-weight: 700;
+      position: relative;
+      padding-bottom: 15px;
+    }
+    
+    .card-title:after {
+      content: '';
+      display: block;
+      width: 50px;
+      height: 3px;
+      background: var(--salon-accent);
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    
+    .form-control, .form-select {
+      border-radius: 8px;
+      padding: 10px 15px;
+      border: 1px solid var(--salon-secondary);
+    }
+    
+    .form-control:focus, .form-select:focus {
+      border-color: var(--salon-primary);
+      box-shadow: 0 0 0 0.25rem rgba(138, 109, 98, 0.25);
+    }
+    
+    .table {
+      --bs-table-bg: transparent;
+    }
+    
+    .table th {
+      background-color: var(--salon-primary);
+      color: white;
+      font-weight: 600;
+    }
+    
+    .table-hover tbody tr:hover {
+      background-color: rgba(212, 184, 167, 0.2);
+    }
+    
+    .badge-paid {
+      background-color: var(--salon-success);
+    }
+    
+    .badge-pending {
+      background-color: var(--salon-accent);
+    }
+    
+    .badge-cancelled {
+      background-color: #dc3545;
+    }
+    
+    .action-btn {
+      width: 30px;
+      height: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      margin: 0 3px;
+    }
+    
+    .loader-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid var(--salon-secondary);
+      border-top: 5px solid var(--salon-primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    footer {
+      background-color: var(--salon-dark);
+      color: white;
+      margin-top: 3rem;
+    }
+    
+    .nav-btn {
+      border-radius: 25px;
+      padding: 8px 15px;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    
+    .nav-btn i {
+      margin-right: 5px;
+    }
+    
+    @media (max-width: 992px) {
+      .navbar-collapse {
+        background-color: white;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        margin-top: 10px;
+      }
+      
+      .d-flex.gap-3 {
+        flex-direction: column;
+        gap: 10px !important;
+      }
+    }
+  </style>
 </head>
 <body>
 
 <!-- Navbar/Header -->
-<nav class="navbar navbar-expand-lg">
+<nav class="navbar navbar-expand-lg sticky-top">
   <div class="container">
     <a class="navbar-brand" href="#">
-      <span class="text-primary">Salon</span> Booking
+      <i class="fas fa-spa me-2"></i><span class="text-primary">Glamour</span> Salon
     </a>
-    <div class="d-flex gap-3">
-      <a href="/api/dashboard/page" class="btn btn-primary">Dashboard</a>
-      <a href="/api/services/page" class="btn btn-warning">Services</a>
-      <a href="/api/staff/page" class="btn btn-success">Staff</a>
-      <button class="btn btn-outline-danger" id="logoutBtn" onclick="logout()">Logout</button>
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <div class="d-flex flex-column flex-lg-row gap-3 ms-lg-auto">
+        <a href="/api/dashboard/page" class="btn nav-btn btn-primary">
+          <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+        <a href="/api/services/page" class="btn nav-btn btn-warning">
+          <i class="fas fa-concierge-bell"></i> Services
+        </a>
+        <a href="/api/staff/page" class="btn nav-btn btn-success">
+          <i class="fas fa-users"></i> Staff
+        </a>
+        <button class="btn nav-btn btn-outline-danger" id="logoutBtn" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
     </div>
   </div>
 </nav>
@@ -36,96 +250,180 @@
   <div class="row">
     <!-- Booking Form -->
     <div class="col-12 col-lg-6">
-      <div class="card shadow">
-        <div class="card-body">
-          <h2 class="card-title text-center mb-4">Book Your Appointment</h2>
+      <div class="card shadow-sm">
+        <div class="card-body p-4 p-md-5">
+          <h2 class="card-title text-center mb-4">
+            <i class="fas fa-calendar-plus me-2"></i>Book Your Appointment
+          </h2>
           <form id="bookingForm">
-            <div class="mb-3">
-              <label for="serviceSelect" class="form-label">Select Service</label>
-              <select id="serviceSelect" class="form-select" required>
+            <div class="mb-4">
+              <label for="serviceSelect" class="form-label fw-semibold">
+                <i class="fas fa-cut me-2"></i>Select Service
+              </label>
+              <select id="serviceSelect" class="form-select form-select-lg" required>
                 <option value="">Select a service</option>
+                <option value="1">Haircut & Styling</option>
+                <option value="2">Hair Coloring</option>
+                <option value="3">Manicure & Pedicure</option>
+                <option value="4">Facial Treatment</option>
+                <option value="5">Waxing</option>
               </select>
             </div>
 
-            <div class="mb-3">
-              <label for="staffSelect" class="form-label">Select Staff Member</label>
-              <select id="staffSelect" class="form-select" required>
-                <option value="">Select a staff member</option>
+            <div class="mb-4">
+              <label for="staffSelect" class="form-label fw-semibold">
+                <i class="fas fa-user-tie me-2"></i>Select Stylist
+              </label>
+              <select id="staffSelect" class="form-select form-select-lg" required>
+                <option value="">Select a stylist</option>
+                <option value="1">Emma Wilson</option>
+                <option value="2">Sophia Rodriguez</option>
+                <option value="3">Michael Brown</option>
+                <option value="4">Jessica Lee</option>
               </select>
             </div>
 
-            <div class="mb-3">
-              <label for="dateInput" class="form-label">Select Date</label>
-              <input type="date" id="dateInput" class="form-control" required />
+            <div class="row mb-4">
+              <div class="col-md-6 mb-3 mb-md-0">
+                <label for="dateInput" class="form-label fw-semibold">
+                  <i class="fas fa-calendar-day me-2"></i>Date
+                </label>
+                <input type="date" id="dateInput" class="form-control form-control-lg" required />
+              </div>
+              <div class="col-md-6">
+                <label for="timeInput" class="form-label fw-semibold">
+                  <i class="fas fa-clock me-2"></i>Time
+                </label>
+                <input type="time" id="timeInput" class="form-control form-control-lg" required />
+              </div>
             </div>
 
-            <div class="mb-3">
-              <label for="timeInput" class="form-label">Select Time</label>
-              <input type="time" id="timeInput" class="form-control" required />
-            </div>
-
-            <button type="submit" class="btn btn-success w-100">Book Now</button>
-          </form>
-          
-          <div class="text-center mt-4">
-            <button class="btn btn-success" onclick="payNow()">
-              <i class="fas fa-credit-card me-2"></i>Pay Now
+            <button type="submit" class="btn btn-success btn-lg w-100 py-3">
+              <i class="fas fa-calendar-check me-2"></i>Book Appointment
             </button>
-          </div>
+          </form>
+        </div>
+      </div>
+      
+      <!-- Payment Card (shown after booking) -->
+      <div class="card shadow-sm mt-4 d-none" id="paymentCard">
+        <div class="card-body p-4 text-center">
+          <h3 class="h4 mb-3">Complete Your Booking</h3>
+          <p class="mb-4">Total Amount: <span class="fw-bold fs-4">₹1,200</span></p>
+          <button class="btn btn-primary btn-lg w-100 py-3" onclick="payNow()">
+            <i class="fas fa-credit-card me-2"></i>Pay Now
+          </button>
+          <p class="text-muted mt-3 mb-0"><small>Secure payment powered by Razorpay</small></p>
         </div>
       </div>
     </div>
 
     <!-- Appointments List -->
-    <div class="col-12 col-lg-6 mt-4 mt-lg-0">
-      <div class="card shadow">
-        <div class="card-body">
-          <h2 class="card-title text-center mb-4">Your Appointments</h2>
-          <div class="table-responsive">
-            <table class="table table-hover">
-              <thead>
-                <tr>
-                  <th>Service</th>
-                  <th>Staff</th>
-                  <th>Date</th>
-                  <th>Time</th>
-                  <th>Payment Status</th>
-                  <th>Amount</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="appointmentsTable">
-                <!-- Dynamic booking rows will be inserted here -->
-              </tbody>
-            </table>
-          </div>
+    <!-- Add this modal structure before the footer -->
+// Add this modal HTML structure at the end of your booking.html body (before the scripts)
+<div class="modal fade" id="appointmentsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Your Appointments</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th>Service</th>
+                <th>Stylist</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="appointmentsTable">
+              <!-- Dynamic content will be loaded here -->
+            </tbody>
+          </table>
         </div>
+        
+        <!-- Pagination -->
+        <nav aria-label="Appointments pagination">
+          <ul class="pagination justify-content-center" id="paginationControls">
+            <!-- Pagination controls will be added here -->
+          </ul>
+        </nav>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
+  </div>
+</div>
+  
+  <!-- Replace the appointments list card with this -->
+<div class="col-12 col-lg-6 mt-4 mt-lg-0">
+    <div class="card shadow-sm">
+      <div class="card-body p-4 text-center">
+        <h2 class="card-title text-center mb-4">
+          <i class="fas fa-list-alt me-2"></i>Your Appointments
+        </h2>
+        <p class="mb-4">View and manage your upcoming appointments</p>
+        <button class="btn btn-primary btn-lg py-3" id="viewAppointmentsBtn">
+          <i class="fas fa-eye me-2"></i>View Appointments
+        </button>
+      </div>
+    </div>
+  </div>
   </div>
 </main>
 
 <!-- Footer -->
-<footer class="bg-white py-4 mt-5">
-  <div class="container text-center">
-    <p class="mb-0">&copy; 2025 Salon Booking App. All rights reserved.</p>
+<footer class="py-4">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-md-6 text-center text-md-start">
+        <small>&copy; 2025 Glamour Salon. All rights reserved.</small>
+      </div>
+      <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
+        <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
+        <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
+        <a href="#" class="text-white"><i class="fab fa-pinterest"></i></a>
+      </div>
+    </div>
   </div>
 </footer>
 
 <!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script src="https://kit.fontawesome.com/your-code.js"></script>
 <script src="/js/booking.js"></script>
-<script src="/js/payment.js"></script>
-
 <script>
-function logout() {
-  localStorage.removeItem('token');
-  window.location.href = "/api/auth/login";
-}
+  // Simulate loading
+  setTimeout(() => {
+    document.getElementById('loader').style.display = 'none';
+  }, 1000);
+  
+  function logout() {
+    localStorage.removeItem('token');
+    window.location.href = "/api/auth/login";
+  }
+  
+  function payNow() {
+    // Payment integration would go here
+    console.log('Initiating payment...');
+  }
+  
+  // Form submission handler
+  document.getElementById('bookingForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    document.getElementById('paymentCard').classList.remove('d-none');
+    window.scrollTo({
+      top: document.getElementById('paymentCard').offsetTop - 20,
+      behavior: 'smooth'
+    });
+  });
 </script>
-
 </body>
 </html>

@@ -27,6 +27,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 
 app.use(express.static(path.join(__dirname, "src", "public")));
+app.use('/public', express.static(path.join(__dirname, 'src/public')));
+// Serve br-master assets for the new UI
+app.use('/br-master/br-master', express.static(path.join(__dirname, 'br-master', 'br-master')));
+
+// Serve the landing page at "/"
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "views", "index.html"));
+});
 
 app.use("/api", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
@@ -43,6 +51,6 @@ sequelize
     app.listen(3000, () => {
       cron_job;
       console.log("Server running on port 3000");
-    });
+    }); 
   })
   .catch((err) => console.log("Error connection to database:" + err));

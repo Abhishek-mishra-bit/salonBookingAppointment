@@ -4,6 +4,8 @@ const Service = require("../models/serviceModel");
 const Staff = require("../models/staffModel");
 const Booking = require('../models/bookingModel');
 const { Op } = require("sequelize");
+const User = require("../models/userModel");
+
 
 // 🕑 Every day at 8AM
 cron.schedule("0 8 * * *", async () => {

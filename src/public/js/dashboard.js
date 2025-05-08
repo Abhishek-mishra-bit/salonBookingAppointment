@@ -2,7 +2,7 @@ const baseUrl = window.location.origin;
 const token = localStorage.getItem("token");
 
 if (!token) {
-  window.location.href = "localhost:3000/api/auth/login";
+  window.location.href = "/api/auth/login";
 }
 
 async function loadProfile() {
@@ -25,19 +25,18 @@ async function loadProfile() {
   } catch (err) {
     console.error(err);
     alert("Session expired. Please login again.");
-    localStorage.removeItem("token");
     window.location.href = "/api/auth/login";
   }
 }
 
 loadProfile();
 
-document.getElementById("logoutBtn").addEventListener("click", () => {
-  localStorage.removeItem("token");
-  window.location.href = `${baseUrl}/api/auth/login`;
-});
+// document.getElementById("logoutBtn").addEventListener("click", () => {
+//   localStorage.removeItem("token");
+//   window.location.href = `${baseUrl}/api/auth/login`;
+// });
 
-async function logout() {
-  localStorage.removeItem("token");
-  window.location.href = `${baseUrl}/api/auth/login`;
-}
+// async function logout() {
+//   localStorage.removeItem("token");
+//   window.location.href = `${baseUrl}/api/auth/login`;
+// }

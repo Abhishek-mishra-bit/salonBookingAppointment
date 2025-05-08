@@ -12,6 +12,11 @@ const bookingForm = document.getElementById("bookingForm");
 const appointmentsTable = document.getElementById("appointmentsTable");
 const loader = document.getElementById("loader");
 
+const APPOINTMENTS_PER_PAGE = 5;
+let currentPage = 1;
+let totalAppointments = 0;
+let allAppointments = [];
+
 // Helper functions
 function showLoader() {
     loader.style.display = "flex";
@@ -79,94 +84,214 @@ async function fetchStaff() {
     }
 }
 
-async function fetchUserBookings() {
+async function fetchUserBookings(page = 1) {
     try {
         showLoader();
-        const res = await axios.get('/api/booking/user', {
+        const res = await axios.get(`/api/booking/user?page=${page}&limit=${APPOINTMENTS_PER_PAGE}`, {
             headers: { Authorization: token }
         });
-        const bookings = res.data;
-        console.log("bookkeing is :", bookings);
-
-        appointmentsTable.innerHTML = '';
-
-        bookings.forEach(booking => {
-            const row = document.createElement('tr');
-            row.setAttribute('data-booking-id', booking.id); 
-                        row.innerHTML = `
-                <td>${booking.date}</td>
-                <td>${booking.time}</td>
-                <td>${booking.Service.name}</td>
-                <td>${booking.Staff.name}</td>
-                <td>${booking.status}</td>
-                <td>${booking.paymentStatus}</td>
-                <td>
-                    <button class="btn btn-primary btn-sm" onclick="showBookingDetails(${booking.id})">
-                        Details
-                    </button>
-                </td>
-                <td>
-                    ${booking.status === 'confirmed' ? `<button class="btn btn-warning btn-sm" onclick="rescheduleBooking(${booking.id})">Reschedule</button>` : ''}
-                    ${booking.status !== 'cancelled' ? `<button class="btn btn-danger btn-sm" onclick="cancelBooking(${booking.id})">Cancel</button>` : ''}
-                </td>
-            `;
-            appointmentsTable.appendChild(row);
-        });
-
+        
+        allAppointments = res.data;
+        console.log("allAppointments", res.data);        
+        totalAppointments = res.data.length;
+        currentPage = page;
+        
+        renderAppointmentsTable();
+        renderPaginationControls();
+        
         hideLoader();
     } catch (err) {
         console.error('Fetching bookings failed:', err);
-        showNotification('Failed to fetch bookings', 'danger');
+        showNotification('Failed to fetch bookings. Please try again.', 'danger');
         hideLoader();
+        
+        // Show empty state on error
+        appointmentsTable.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center py-4 text-danger">
+                    Error loading appointments
+                </td>
+            </tr>
+        `;
+    }
+}
+
+function renderAppointmentsTable() {
+    appointmentsTable.innerHTML = '';
+
+    if (!allAppointments || allAppointments.length === 0) {
+        appointmentsTable.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center py-4">
+                    <i class="fas fa-calendar-times fa-2x mb-2 text-muted"></i>
+                    <p class="mb-0">No appointments found</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    allAppointments.forEach(booking => {
+        const serviceName = booking.Service?.name || 'Service not specified';
+        const staffName = booking.Staff?.name || 'Staff not assigned';
+        const formattedDate = booking.date ? new Date(booking.date).toLocaleDateString() : 'Not set';
+        const formattedTime = booking.time || 'Not set';
+        
+        const row = document.createElement('tr');
+        row.setAttribute('data-booking-id', booking.id); 
+        row.innerHTML = `
+            <td>${serviceName}</td>
+            <td>${staffName}</td>
+            <td>${formattedDate}<br><small class="text-muted">${formattedTime}</small></td>
+            <td>
+                <span class="badge ${getStatusBadgeClass(booking.status)}">
+                    ${booking.status || 'pending'}
+                </span>
+            </td>
+            <td class="text-nowrap">
+                <button class="btn btn-sm btn-outline-primary action-btn" title="View" onclick="showBookingDetails('${booking.id}')">
+                    <i class="fas fa-eye"></i>
+                </button>
+                ${booking.status !== 'cancelled' ? `
+                <button class="btn btn-sm btn-outline-danger action-btn" title="Cancel" onclick="cancelBooking('${booking.id}')">
+                    <i class="fas fa-times"></i>
+                </button>
+                ` : ''}
+            </td>
+        `;
+        appointmentsTable.appendChild(row);
+    });
+}
+
+function renderPaginationControls() {
+    const totalPages = Math.ceil(totalAppointments / APPOINTMENTS_PER_PAGE);
+    const paginationControls = document.getElementById('paginationControls');
+    
+    paginationControls.innerHTML = '';
+    
+    if (totalPages <= 1) return;
+    
+    // Previous button
+    const prevLi = document.createElement('li');
+    prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+    prevLi.innerHTML = `<a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Previous</a>`;
+    paginationControls.appendChild(prevLi);
+    
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+        const pageLi = document.createElement('li');
+        pageLi.className = `page-item ${i === currentPage ? 'active' : ''}`;
+        pageLi.innerHTML = `<a class="page-link" href="#" onclick="changePage(${i})">${i}</a>`;
+        paginationControls.appendChild(pageLi);
+    }
+    
+    // Next button
+    const nextLi = document.createElement('li');
+    nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+    nextLi.innerHTML = `<a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Next</a>`;
+    paginationControls.appendChild(nextLi);
+}
+
+function changePage(page) {
+    if (page < 1 || page > Math.ceil(totalAppointments / APPOINTMENTS_PER_PAGE)) return;
+    fetchUserBookings(page);
+}
+
+// Add event listener for the view appointments button
+document.getElementById('viewAppointmentsBtn')?.addEventListener('click', function() {
+    const modal = new bootstrap.Modal(document.getElementById('appointmentsModal'));
+    modal.show();
+    fetchUserBookings();
+});
+
+// Helper function for status badges
+function getStatusBadgeClass(status) {
+    switch(status?.toLowerCase()) {
+        case 'confirmed': return 'bg-success';
+        case 'cancelled': return 'bg-danger';
+        case 'completed': return 'bg-primary';
+        default: return 'bg-warning text-dark';
     }
 }
 
 // Booking Form Submit
+// Booking Form Submit - Updated version
 bookingForm.addEventListener("submit", async function (e) {
     e.preventDefault();
+    showLoader();
 
     try {
-        const proceedToPayment = confirm("Do you want to proceed with payment?");
-        if (!proceedToPayment) {
-            alert("Booking cancelled because payment is required.");
-            return;
-        }
-
         const serviceId = serviceSelect.value;
         const staffId = staffSelect.value;
         const date = dateInput.value;
         const time = timeInput.value;
 
-        const { data } = await axios.post("/api/payment/create-order", { serviceId });
+        if (!serviceId || !staffId || !date || !time) {
+            showNotification('Please fill all fields', 'warning');
+            hideLoader();
+            return;
+        }
+
+        // Create booking first
+        const bookingRes = await axios.post("/api/booking/create", {
+            serviceId,
+            staffId,
+            date,
+            time
+        }, {
+            headers: { Authorization: token }
+        });        
+
+        // Then create payment order
+        const paymentRes = await axios.post(`/api/payment/create-order`, { 
+            bookingId: bookingRes.data.booking.id,
+            amount: bookingRes.data.booking.amountPaid 
+        },{
+            headers: { Authorization: token }
+        });
 
         const options = {
-            key: "RAZORPAY_KEY", // Replace with your Razorpay public key
-            amount: data.amount,
+            key: paymentRes.data.key_id, // Replace with your actual key
+            amount: paymentRes.data.amount,
             currency: "INR",
-            order_id: data.orderId,
-            handler: async function (response) {
+            order_id: paymentRes.data.orderId,
+            name: "Salon Booking",
+            description: `Payment for ${serviceSelect.options[serviceSelect.selectedIndex].text}`,
+            handler: async function (paymentRes) {
                 try {
                     await axios.post("/api/payment/confirm-payment", {
-                        razorpay_payment_id: response.razorpay_payment_id,
-                        razorpay_order_id: response.razorpay_order_id,
-                        razorpay_signature: response.razorpay_signature,
-                        bookingDetails: { serviceId, staffId, date, time }
+                        razorpay_payment_id: paymentRes.razorpay_payment_id,
+                        razorpay_order_id: paymentRes.razorpay_order_id,
+                        razorpay_signature: paymentRes.razorpay_signature,
+                        bookingId: bookingRes.data.booking.id 
+                    },{
+                        headers: { Authorization: token }
                     });
-                    alert("Booking successful!");
-                    location.reload();
+                    
+                    showNotification('Booking and payment successful!', 'success');
+                    fetchUserBookings();
                 } catch (error) {
                     console.error('Payment confirmation error:', error);
-                    alert('Payment was successful but booking confirmation failed.');
+                    showNotification('Payment successful but booking update failed', 'warning');
                 }
             },
-            prefill: { name: "Customer Name" }
+            modal: {
+                ondismiss: function() {
+                    showNotification('Payment cancelled', 'warning');
+                }
+            },
+            theme: {
+                color: "#8a6d62" // Use your salon primary color
+            }
         };
 
         const rzp = new Razorpay(options);
         rzp.open();
     } catch (error) {
-        console.error('Error in booking process:', error);
-        alert('An error occurred. Please try again.');
+        console.error('Booking error:', error);
+        showNotification(error.response?.data?.message || 'Booking failed. Please try again.', 'danger');
+    } finally {
+        hideLoader();
     }
 });
 
@@ -234,23 +359,21 @@ async function processPayment(bookingId, amount) {
 
 // Show booking details in modal
 function showBookingDetails(bookingId) {
-        
     const bookingRow = document.querySelector(`tr[data-booking-id="${bookingId}"]`);
     if (!bookingRow) {
         console.error('Booking not found:', bookingId);
         return;
     }
 
-    // Get booking details from data attributes or cells
-    const bookingDetails = {
-        id: bookingId,
-        service: bookingRow.cells[0].textContent,
-        staff: bookingRow.cells[1].textContent,
-        date: bookingRow.cells[2].textContent,
-        time: bookingRow.cells[3].textContent,
-        status: bookingRow.cells[4].textContent,
-        paymentStatus: bookingRow.cells[5].textContent
-    };
+    // Get data from the correct cells
+    const serviceName = bookingRow.cells[0].textContent;
+    const staffName = bookingRow.cells[1].textContent;
+    const dateTime = bookingRow.cells[2].textContent;
+    const status = bookingRow.cells[3].querySelector('.badge').textContent.trim();
+    
+    // Extract date and time from the combined cell
+    const [date, time] = dateTime.split('\n');
+    const cleanTime = time ? time.replace('<small class="text-muted">', '').replace('</small>', '').trim() : 'Not set';
 
     // Create modal HTML
     const modalHtml = `
@@ -264,44 +387,31 @@ function showBookingDetails(bookingId) {
                     <div class="modal-body">
                         <div class="mb-3">
                             <h6>Service:</h6>
-                            <p>${bookingDetails.service}</p>
+                            <p>${serviceName}</p>
                         </div>
                         <div class="mb-3">
                             <h6>Staff:</h6>
-                            <p>${bookingDetails.staff}</p>
+                            <p>${staffName}</p>
                         </div>
                         <div class="row mb-3">
                             <div class="col-6">
                                 <h6>Date:</h6>
-                                <p>${bookingDetails.date}</p>
+                                <p>${date}</p>
                             </div>
                             <div class="col-6">
                                 <h6>Time:</h6>
-                                <p>${bookingDetails.time}</p>
+                                <p>${cleanTime}</p>
                             </div>
                         </div>
-                        <div class="row mb-3">
-                            <div class="col-6">
-                                <h6>Status:</h6>
-                                <span class="badge bg-${bookingDetails.status === 'confirmed' ? 'success' : 'warning'}">
-                                    ${bookingDetails.status}
-                                </span>
-                            </div>
-                            <div class="col-6">
-                                <h6>Payment:</h6>
-                                <span class="badge bg-${bookingDetails.paymentStatus === 'paid' ? 'success' : 'danger'}">
-                                    ${bookingDetails.paymentStatus}
-                                </span>
-                            </div>
+                        <div class="mb-3">
+                            <h6>Status:</h6>
+                            <span class="badge ${getStatusBadgeClass(status)}">
+                                ${status}
+                            </span>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        ${bookingDetails.paymentStatus !== 'paid' ? 
-                            `<button type="button" class="btn btn-primary" onclick="processPayment('${bookingId}')">
-                                Pay Now
-                            </button>` : ''
-                        }
                     </div>
                 </div>
             </div>
@@ -324,7 +434,6 @@ function showBookingDetails(bookingId) {
 document.addEventListener('DOMContentLoaded', () => {
     fetchServices();
     fetchStaff();
-    fetchUserBookings();
 });
 
 // Appointment Actions
@@ -333,13 +442,13 @@ async function cancelBooking(id) {
 
     try {
         showLoader();
-        await axios.patch(`/api/bookings/cancel/${id}`, null, {
+        await axios.patch(`/api/booking/cancel/${id}`, null, {
             headers: { Authorization: token }
         });
         
         hideLoader();
         showNotification('Booking cancelled successfully!', 'success');
-        fetchAppointments();
+        fetchUserBookings();
     } catch (err) {
         console.error('Failed to cancel booking', err);
         showNotification('Failed to cancel booking. Please try again.', 'danger');
@@ -358,7 +467,7 @@ async function rescheduleBooking(id) {
 
     try {
         showLoader();
-        await axios.patch(`/api/bookings/reschedule/${id}`, {
+        await axios.patch(`/api/booking/reschedule/${id}`, {
             date: newDate,
             time: newTime
         }, {

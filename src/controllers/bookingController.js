@@ -49,28 +49,36 @@ exports.createBooking = async (req, res) => {
 };
 
 // Get user's bookings
+// Update the getUserBookings function in bookingController.js
 exports.getUserBookings = async (req, res) => {
-  try {   
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const offset = (page - 1) * limit;
 
-    const bookings = await Booking.findAll({
-      where: {
-        userId: req.user.id
-      },
+    const { count, rows: bookings } = await Booking.findAndCountAll({
+      where: { userId: req.user.id },
       include: [
-        {
-          model: Service,
-          attributes: ['id', 'name', 'price']
+        { 
+          model: Service, 
+          attributes: ['id', 'name', 'price'] 
         },
-        {
-          model: Staff,
-          attributes: ['id', 'name', 'specialization']
+        { 
+          model: Staff, 
+          attributes: ['id', 'name', 'specialization', 'avgRating'] 
         }
-      ]
+      ],
+      order: [['date', 'DESC']],
+      limit,
+      offset
     });
 
-    res.json(bookings);
+    res.json({
+      appointments: bookings,
+      totalCount: count
+    });
   } catch (err) {
-    console.error('Error fetching user bookings:', err);
+    console.error('Fetching bookings failed:', err);
     res.status(500).json({ error: 'Failed to fetch bookings' });
   }
 };
