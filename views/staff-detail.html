@@ -28,6 +28,24 @@
   </style>
 </head>
 <body>
+    <!-- Navbar/Header -->
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+      <a class="navbar-brand" href="#">
+        <i class="fas fa-spa me-2"></i><span class="text-primary">Glamour</span> Salon
+      </a>
+      
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <div class="d-flex flex-column flex-lg-row gap-3 ms-lg-auto">
+          <!-- Dynamic navigation will be rendered here by shared-nav.js -->
+        </div>
+      </div>
+    </div>
+  </nav>
 
   <h1>Staff: <span id="staffName">Loading...</span></h1>
 
@@ -286,6 +304,7 @@
 <!-- footer_end  -->
 
 <!-- Scripts -->
+<script src="/js/shared-nav.js"></script>
 <script src="/public/style-js/modernizr-3.5.0.min.js"></script>
 <script src="/public/style-js/jquery-1.12.4.min.js"></script>
 <script src="/public/style-js/jquery.slicknav.min.js"></script>
