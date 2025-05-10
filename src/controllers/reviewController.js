@@ -4,23 +4,22 @@ const Booking = require('../models/bookingModel');
 const path = require('path');
 const rootDir = require('../utils/path');
 
-exports.getReviewPage = (req, res) => {
+exports. getReviewPage = (req, res) => {
     res.sendFile(path.join(rootDir, 'views', 'review.html'));
   };
 
 // ⭐ Add a Review
 exports.addReview = async (req, res) => {
   try {
-    const { bookingId, staffId, rating, comment } = req.body;
+    const { staffId, rating, comment } = req.body;
     const userId = req.user.id;
-
     // Check if user already reviewed this booking
-    const existing = await Review.findOne({ where: { bookingId, userId } });
+    const existing = await Review.findOne({ where: { userId } });
     if (existing) {
       return res.status(400).json({ message: 'Review already submitted.' });
     }
 
-    const review = await Review.create({ bookingId, userId, staffId, rating, comment });
+    const review = await Review.create({ userId, staffId, rating, comment });
     res.status(201).json(review);
   } catch (err) {
     console.error('Error adding review:', err);

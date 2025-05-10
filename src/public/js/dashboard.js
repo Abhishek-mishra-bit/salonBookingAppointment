@@ -1,82 +1,50 @@
+// dashboard.js
 const baseUrl = window.location.origin;
 
 
-document.addEventListener('DOMContentLoaded',  async () => {
-  await axios.get("/api/dashboard/page", {
-    
+// Fetch customer name
+document.addEventListener('DOMContentLoaded', function() {
+   
+  axios.get('/api/dashboard/auth/profile', {
+    withCredentials: true
+  })
+  .then(res => {
+    document.getElementById('customerName').textContent = res.data.name;
+  })
+  .catch(err => {
+    console.error('Error fetching profile:', err);
   });
 });
 
-async function loadProfile() {
-  try {
-    const res = await axios.get("/api/dashboard/auth/profile", {
-      
-    });
-
-    const user = res.data;
-
-    document.getElementById("userName").innerText = user.name;
-    document.getElementById("userEmail").innerText = user.email;
-    document.getElementById("userPhone").innerText = user.phone;
-    document.getElementById("userRole").innerText = user.role;
-
-      // Hide loader and show content
-      document.getElementById('loader').style.display = 'none';
-      document.querySelector('main').style.display = 'block';
-
-  } catch (err) {
-    console.error(err);
-    alert("Session expired. Please login again.");
+function logout() {
+axios.post("/api/auth/logout", {}, { withCredentials: true })
+  .then(() => {
     window.location.href = "/api/auth/login";
-  }
+  })
+  .catch(err => {
+    console.error("Logout failed", err);
+  });
 }
 
-loadProfile();
 
+// In dashboard.js, update the event listener section
 document.addEventListener('DOMContentLoaded', function() {
-  // Event handler for the "My Appointments" button
-  const btn = document.getElementById('viewAppointmentsBtn');
-  if (btn) {
-    btn.addEventListener('click', async function() {
-      // Show loader/spinner in modal
-      const tableBody = document.getElementById('appointmentsTable');
-      tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Loading...</td></tr>';
-
-      // Show the modal
-      const modal = new bootstrap.Modal(document.getElementById('appointmentsModal'));
-      modal.show();
-
-      try {
-        // Fetch appointments (adjust endpoint as per your backend)
-        const res = await axios.get('/api/booking/user');
-        const appointments = res.data.rows || res.data; // adapt if paginated
-
-        if (appointments.length === 0) {
-          tableBody.innerHTML = '<tr><td colspan="5" class="text-center">No appointments found.</td></tr>';
-          return;
-        }
-
-        // Render rows
-        tableBody.innerHTML = '';
-        appointments.forEach(appt => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${appt.Service?.name || '-'}</td>
-            <td>${appt.Staff?.name || '-'}</td>
-            <td>${appt.date} ${appt.time}</td>
-            <td>${appt.status}</td>
-            <td>
-              ${appt.status === 'confirmed' ? `
-                <button class="btn btn-sm btn-danger me-2" onclick="cancelBooking(${appt.id})">Cancel</button>
-                <button class="btn btn-sm btn-warning" onclick="rescheduleBooking(${appt.id})">Reschedule</button>
-              ` : '<em>-</em>'}
-            </td>
-          `;
-          tableBody.appendChild(row);
-        });
-      } catch (err) {
-        tableBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Failed to load appointments.</td></tr>`;
-      }
-    });
-  }
+  // Event handler for both appointment buttons
+  const navBtn = document.getElementById('viewAppointmentsBtn');
+  const cardBtn = document.getElementById('viewAppointmentsCardBtn');
+  
+  const showAppointments = function() {
+    // Show the modal
+    const modal = new bootstrap.Modal(document.getElementById('appointmentsModal'));
+    modal.show();
+    
+    // Use the shared function to fetch appointments
+    fetchUserAppointments();
+  };
+  
+  // Attach the same handler to both buttons
+  if (navBtn) navBtn.addEventListener('click', showAppointments);
+  if (cardBtn) cardBtn.addEventListener('click', showAppointments);
 });
+
+

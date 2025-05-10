@@ -9,7 +9,8 @@ const Review = sequelize.define('Review', {
   },
   bookingId: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: true,
+    defaultValue: null
   },
   userId: {
     type: DataTypes.INTEGER,

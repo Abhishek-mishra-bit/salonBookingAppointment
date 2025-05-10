@@ -8,6 +8,9 @@ router.get("/auth/login", authController.getLoginPage);
 router.post("/auth/register", authController.register);
 router.post("/auth/login", authController.login);
 
+const { protect } = require("../middlewares/authMiddleware");
+router.post('/auth/logout', protect,authController.logout);
+
 
 
 

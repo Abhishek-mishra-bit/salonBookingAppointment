@@ -18,9 +18,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Fetch staff members
 async function fetchStaff() {
     try {
-        const token = localStorage.getItem('token');
         const response = await axios.get('/api/staff', {
-            headers: { Authorization: token }
         });
         const staff = response.data;
         

@@ -123,15 +123,10 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
   // Fetch admin name
-  document.addEventListener('DOMContentLoaded', function() {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      window.location.href = "/api/auth/login";
-      return;
-    }
+  document.addEventListener('DOMContentLoaded', function() {   
     
     axios.get('/api/dashboard/auth/profile', {
-      headers: { 'Authorization': token }
+      withCredentials: true
     })
     .then(res => {
       document.getElementById('adminName').textContent = res.data.name;
@@ -143,8 +138,13 @@
   });
 
   function logout() {
-    localStorage.removeItem('token');
-    window.location.href = "/api/auth/login";
+  axios.post("/api/auth/logout", {}, { withCredentials: true })
+    .then(() => {
+      window.location.href = "/api/auth/login";
+    })
+    .catch(err => {
+      console.error("Logout failed", err);
+    });
   }
 </script>
 </body>
