@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Dashboard | Glamour Salon</title>
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin-dashboard.css">
+  
+  
+</head>
+<body>
+
+<!-- Admin Navbar -->
+<nav class="navbar navbar-expand-lg sticky-top">
+  <div class="container">
+    <a class="navbar-brand" href="#">
+      <i class="fas fa-spa me-2"></i><span class="text-primary">Glamour</span> Salon Admin
+    </a>
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <div class="d-flex flex-column flex-lg-row gap-3 ms-lg-auto">
+        <a href="/api/services/page" class="btn nav-btn btn-primary">
+          <i class="fas fa-concierge-bell me-2"></i>Services
+        </a>
+        <a href="/api/staff/page" class="btn nav-btn btn-warning">
+          <i class="fas fa-user-tie me-2"></i>Staff
+        </a>
+        <a href="/api/admin/page" class="btn nav-btn btn-info">
+          <i class="fas fa-calendar-check me-2"></i>Bookings
+        </a>
+        <button class="btn nav-btn btn-outline-light" id="logoutBtn" onclick="logout()">
+          <i class="fas fa-sign-out-alt me-2"></i>Logout
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="container my-5">
+  <div class="text-center mb-5">
+    <h1 class="welcome-heading">Admin Dashboard, <span id="adminName" class="admin-name"></span>!</h1>
+    <p class="welcome-text">Manage salon services, staff, and client appointments.</p>
+  </div>
+  
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <div class="card-icon">
+            <i class="fas fa-concierge-bell"></i>
+          </div>
+          <h5 class="card-title">Service Management</h5>
+          <p class="card-text">Add, update, or remove salon services and pricing.</p>
+          <a href="/api/services/page" class="btn btn-primary">
+            <i class="fas fa-concierge-bell me-2"></i>Manage Services
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <div class="card-icon">
+            <i class="fas fa-user-tie"></i>
+          </div>
+          <h5 class="card-title">Staff Management</h5>
+          <p class="card-text">Manage your talented stylists and staff members.</p>
+          <a href="/api/staff/page" class="btn btn-warning">
+            <i class="fas fa-user-tie me-2"></i>Manage Staff
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <div class="card-icon">
+            <i class="fas fa-calendar-check"></i>
+          </div>
+          <h5 class="card-title">Appointments</h5>
+          <p class="card-text">View and manage all client bookings and schedules.</p>
+          <a href="/api/admin/page" class="btn btn-info">
+            <i class="fas fa-calendar-check me-2"></i>View Bookings
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-md-6 text-center text-md-start">
+        <small>&copy; 2025 Glamour Salon Admin. All rights reserved.</small>
+      </div>
+      <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
+        <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
+        <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
+        <a href="#" class="text-white"><i class="fab fa-pinterest"></i></a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+  // Fetch admin name
+  document.addEventListener('DOMContentLoaded', function() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = "/api/auth/login";
+      return;
+    }
+    
+    axios.get('/api/dashboard/auth/profile', {
+      headers: { 'Authorization': token }
+    })
+    .then(res => {
+      document.getElementById('adminName').textContent = res.data.name;
+    })
+    .catch(err => {
+      console.error('Error fetching profile:', err);
+      window.location.href = "/api/auth/login";
+    });
+  });
+
+  function logout() {
+    localStorage.removeItem('token');
+    window.location.href = "/api/auth/login";
+  }
+</script>
+</body>
+</html> 

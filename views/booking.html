@@ -7,206 +7,8 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --salon-primary: #8a6d62; /* Earthy brown */
-      --salon-secondary: #d4b8a7; /* Light beige */
-      --salon-accent: #c17c74; /* Dusty rose */
-      --salon-dark: #4a3f35; /* Dark brown */
-      --salon-light: #f8f4f0; /* Cream */
-      --salon-success: #9aab89; /* Sage green */
-      --salon-info: #7aa2b8; /* Soft blue */
-    }
-    
-    body {
-      background-color: var(--salon-light);
-      font-family: 'Inter', sans-serif;
-    }
-    
-    .navbar {
-      background-color: white !important;
-      box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-      padding: 15px 0;
-    }
-    
-    .navbar-brand {
-      color: var(--salon-dark) !important;
-      font-weight: 700;
-      font-size: 1.5rem;
-    }
-    
-    .navbar-brand span.text-primary {
-      color: var(--salon-primary) !important;
-    }
-    
-    .btn-primary {
-      background-color: var(--salon-primary);
-      border-color: var(--salon-primary);
-    }
-    
-    .btn-primary:hover {
-      background-color: var(--salon-dark);
-      border-color: var(--salon-dark);
-    }
-    
-    .btn-warning {
-      background-color: var(--salon-accent);
-      border-color: var(--salon-accent);
-      color: white;
-    }
-    
-    .btn-warning:hover {
-      background-color: #b56a63;
-      border-color: #b56a63;
-    }
-    
-    .btn-success {
-      background-color: var(--salon-success);
-      border-color: var(--salon-success);
-    }
-    
-    .btn-success:hover {
-      background-color: #7e8f6d;
-      border-color: #7e8f6d;
-    }
-    
-    .card {
-      border: none;
-      border-radius: 10px;
-      overflow: hidden;
-      transition: transform 0.3s, box-shadow 0.3s;
-    }
-    
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
-    }
-    
-    .card-title {
-      color: var(--salon-dark);
-      font-weight: 700;
-      position: relative;
-      padding-bottom: 15px;
-    }
-    
-    .card-title:after {
-      content: '';
-      display: block;
-      width: 50px;
-      height: 3px;
-      background: var(--salon-accent);
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-    
-    .form-control, .form-select {
-      border-radius: 8px;
-      padding: 10px 15px;
-      border: 1px solid var(--salon-secondary);
-    }
-    
-    .form-control:focus, .form-select:focus {
-      border-color: var(--salon-primary);
-      box-shadow: 0 0 0 0.25rem rgba(138, 109, 98, 0.25);
-    }
-    
-    .table {
-      --bs-table-bg: transparent;
-    }
-    
-    .table th {
-      background-color: var(--salon-primary);
-      color: white;
-      font-weight: 600;
-    }
-    
-    .table-hover tbody tr:hover {
-      background-color: rgba(212, 184, 167, 0.2);
-    }
-    
-    .badge-paid {
-      background-color: var(--salon-success);
-    }
-    
-    .badge-pending {
-      background-color: var(--salon-accent);
-    }
-    
-    .badge-cancelled {
-      background-color: #dc3545;
-    }
-    
-    .action-btn {
-      width: 30px;
-      height: 30px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      margin: 0 3px;
-    }
-    
-    .loader-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(255, 255, 255, 0.8);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    }
-    
-    .spinner {
-      width: 50px;
-      height: 50px;
-      border: 5px solid var(--salon-secondary);
-      border-top: 5px solid var(--salon-primary);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    footer {
-      background-color: var(--salon-dark);
-      color: white;
-      margin-top: 3rem;
-    }
-    
-    .nav-btn {
-      border-radius: 25px;
-      padding: 8px 15px;
-      font-weight: 500;
-      transition: all 0.3s;
-    }
-    
-    .nav-btn i {
-      margin-right: 5px;
-    }
-    
-    @media (max-width: 992px) {
-      .navbar-collapse {
-        background-color: white;
-        padding: 15px;
-        border-radius: 10px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        margin-top: 10px;
-      }
-      
-      .d-flex.gap-3 {
-        flex-direction: column;
-        gap: 10px !important;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="/css/booking.css">
+
 </head>
 <body>
 
@@ -306,7 +108,7 @@
       </div>
       
       <!-- Payment Card (shown after booking) -->
-      <div class="card shadow-sm mt-4 d-none" id="paymentCard">
+      <!-- <div class="card shadow-sm mt-4 d-none" id="paymentCard">
         <div class="card-body p-4 text-center">
           <h3 class="h4 mb-3">Complete Your Booking</h3>
           <p class="mb-4">Total Amount: <span class="fw-bold fs-4">₹1,200</span></p>
@@ -315,12 +117,11 @@
           </button>
           <p class="text-muted mt-3 mb-0"><small>Secure payment powered by Razorpay</small></p>
         </div>
-      </div>
+      </div> -->
     </div>
 
     <!-- Appointments List -->
     <!-- Add this modal structure before the footer -->
-// Add this modal HTML structure at the end of your booking.html body (before the scripts)
 <div class="modal fade" id="appointmentsModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">

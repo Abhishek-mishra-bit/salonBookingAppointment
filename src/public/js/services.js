@@ -1,125 +1,174 @@
-const serviceForm = document.getElementById("serviceForm");
-const servicesTable = document.querySelector("#servicesTable tbody");
-const token = localStorage.getItem("token");
+  // Logout function
+  function logout() {
+    window.location.href = "/api/auth/login";
+  }
 
-window.addEventListener('load', () => {
+  // Toast notification function
+  function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast show align-items-center text-white bg-${type} border-0`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    toast.innerHTML = `
+      <div class="d-flex">
+        <div class="toast-body">
+          <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-2"></i>
+          ${message}
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    `;
+    
+    document.getElementById('toast').appendChild(toast);
+    
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 300);
+    }, 5000);
+  }
+
+  // Loader functions
+  function showLoader() {
+    document.getElementById('loader').style.display = 'flex';
+  }
+
+  function hideLoader() {
     document.getElementById('loader').style.display = 'none';
+  }
+
+  // Service form handling
+  document.addEventListener('DOMContentLoaded', function() {
+    // Fetch and display services
+    fetchServices();
+    
+    // Form submission
+    document.getElementById('serviceForm').addEventListener('submit', handleServiceSubmit);
   });
 
-  function showToast(message) {
-    const toast = document.getElementById("toast");
-    toast.innerText = message;
-    toast.style.display = "block";
-  
-    // Hide after 3 seconds
-    setTimeout(() => {
-      toast.style.display = "none";
-    }, 3000);
-  }
-  
-
-async function fetchServices() {
-  try {
-    const res = await axios.get("/api/services", {
-      headers: { Authorization: token }});
-    const services = res.data;
-    servicesTable.innerHTML = "";
-
-    services.forEach(service => {
-      const row = document.createElement("tr");
-
-      row.innerHTML = `
-        <td>${service.name}</td>
-        <td>₹${service.price}</td>
-        <td>${service.duration} min</td>
-        <td>
-          <button class="btn btn-sm btn-warning me-2" onclick="editService(${service.id})">Edit</button>
-          <button class="btn btn-sm btn-danger" onclick="deleteService(${service.id})">Delete</button>
-        </td>
-      `;
-
-      servicesTable.appendChild(row);
-    });
-
-  } catch (err) {
-    console.error(err);
-    alert("Failed to load services");
-  }
-}
-
-serviceForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const id = document.getElementById("serviceId").value;
-  const name = document.getElementById("name").value.trim();
-  const description = document.getElementById("description").value.trim();
-  const price = parseFloat(document.getElementById("price").value);
-  const duration = parseInt(document.getElementById("duration").value);
-
-  const serviceData = { name, description, price, duration };
-  console.log("Service data:", serviceData);
-
-  try {
-    if (id) {
-      // Update service
-      const updateResponse = await axios.patch(`/api/services/${id}`, serviceData, {
-        headers: { Authorization: token }
+  async function fetchServices() {
+    try {
+      showLoader();
+      
+      const res = await axios.get("/api/services");
+      
+      const tableBody = document.querySelector('#servicesTable tbody');
+      tableBody.innerHTML = '';
+      
+      if (res.data.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="4" class="text-center py-4">
+              <i class="fas fa-concierge-bell fa-2x mb-2 text-muted"></i>
+              <p class="mb-0">No services found</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      res.data.forEach(service => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>
+            <strong>${service.name}</strong>
+            ${service.description ? `<small class="text-muted d-block">${service.description}</small>` : ''}
+          </td>
+          <td>₹${service.price}</td>
+          <td>${service.duration} mins</td>
+          <td class="text-nowrap">
+            <button class="btn btn-sm btn-outline-primary action-btn" title="Edit" onclick="editService('${service.id}')">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger action-btn" title="Delete" onclick="deleteService('${service.id}')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+        tableBody.appendChild(row);
       });
-      console.log("Service update response:", updateResponse.data);
-      showToast("✏️ Service updated successfully!");
-    } else {
-      // Create new service
-      const createResponse = await axios.post("/api/services", serviceData, {
-        headers: { Authorization: token }
-      });
-      console.log("Service create response:", createResponse.data);
-      showToast("✅ Service added successfully!");
+      
+      hideLoader();
+    } catch (err) {
+      console.error('Error fetching services:', err);
+      showToast('Failed to load services. Please try again.', 'danger');
+      hideLoader();
     }
-
-    serviceForm.reset();
-    document.getElementById("serviceId").value = "";
-    fetchServices();
-
-  } catch (err) {
-    console.error("Service creation error:", err.response?.data || err.message);
-    showToast("❌ Failed to save service: " + (err.response?.data?.message || "Please try again"));
   }
-});
 
-async function editService(id) {
-  try {
-    const res = await axios.get("/api/services", {
-        headers: { Authorization: token }
+  async function handleServiceSubmit(e) {
+    e.preventDefault();
+    
+    const serviceId = document.getElementById('serviceId').value;
+    const name = document.getElementById('name').value;
+    const description = document.getElementById('description').value;
+    const price = document.getElementById('price').value;
+    const duration = document.getElementById('duration').value;
+    
+    if (!name || !price || !duration) {
+      showToast('Please fill all required fields', 'warning');
+      return;
+    }
+    
+    try {
+      showLoader();
+      
+      const url = serviceId ? `/api/services/${serviceId}` : '/api/services';
+      const method = serviceId ? 'put' : 'post';
+      
+      await axios[method](url, {
+        name,
+        description,
+        price,
+        duration
       });
-    const service = res.data.find(s => s.id === id);
-
-    document.getElementById("serviceId").value = service.id;
-    document.getElementById("name").value = service.name;
-    document.getElementById("description").value = service.description;
-    document.getElementById("price").value = service.price;
-    document.getElementById("duration").value = service.duration;
-
-    window.scrollTo({ top: 0, behavior: "smooth" });
-
-  } catch (err) {
-    console.error(err);
-    alert("Failed to load service details");
+      
+      showToast(`Service ${serviceId ? 'updated' : 'added'} successfully!`);
+      document.getElementById('serviceForm').reset();
+      document.getElementById('serviceId').value = '';
+      fetchServices();
+    } catch (err) {
+      console.error('Error saving service:', err);
+      showToast(err.response?.data?.message || 'Failed to save service', 'danger');
+      hideLoader();
+    }
   }
-}
 
-async function deleteService(id) {
-  if (!confirm("Are you sure you want to delete this service?")) return;
-
-  try {
-    await axios.delete(`/api/services/${id}`, {
-      headers: { Authorization: token }
-    });
-    showToast("Service deleted successfully!");
-    fetchServices();
-  } catch (err) {
-    console.error(err);
-    alert("Failed to delete service");
+  async function editService(id) {
+    try {
+      showLoader();
+      
+      const res = await axios.get(`/api/services/${id}`);
+      
+      document.getElementById('serviceId').value = id;
+      document.getElementById('name').value = res.data.name;
+      document.getElementById('description').value = res.data.description || '';
+      document.getElementById('price').value = res.data.price;
+      document.getElementById('duration').value = res.data.duration;
+      
+      // Scroll to form
+      document.getElementById('serviceForm').scrollIntoView({ behavior: 'smooth' });
+      hideLoader();
+    } catch (err) {
+      console.error('Error editing service:', err);
+      showToast('Failed to load service details', 'danger');
+      hideLoader();
+    }
   }
-}
 
-fetchServices(); // Load services on page load
+  async function deleteService(id) {
+    if (!confirm('Are you sure you want to delete this service?')) return;
+    
+    try {
+      showLoader();
+      
+      await axios.delete(`/api/services/${id}`);
+      
+      showToast('Service deleted successfully!');
+      fetchServices();
+    } catch (err) {
+      console.error('Error deleting service:', err);
+      showToast('Failed to delete service', 'danger');
+      hideLoader();
+    }
+  }

@@ -12,7 +12,8 @@
     
     try {
       
-      const { bookingId, amount } = req.body;
+      let { bookingId, amount } = req.body;
+       amount = amount*100;
       const options = {
         amount,
         currency: "INR",

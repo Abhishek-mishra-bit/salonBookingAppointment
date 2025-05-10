@@ -1,0 +1,66 @@
+:root {
+  --salon-blue: #65b9d6;
+  --salon-dark: #2a2a3c;
+  --salon-light: #f6fafd;
+  --salon-accent: #9d65c9;
+}
+body {
+  background-color: var(--salon-light);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.navbar {
+  background: linear-gradient(135deg, var(--salon-dark), var(--salon-blue)) !important;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+}
+.navbar-brand {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.btn-accent {
+  background-color: var(--salon-accent);
+  border-color: var(--salon-accent);
+  color: #fff;
+}
+.btn-accent:hover {
+  background-color: #7b4fb2;
+  border-color: #7b4fb2;
+}
+.card {
+  border: none;
+  border-radius: 12px;
+  transition: transform 0.3s, box-shadow 0.3s;
+  overflow: hidden;
+}
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+}
+.display-5 {
+  font-weight: 600;
+  color: var(--salon-dark);
+  position: relative;
+  display: inline-block;
+}
+.display-5::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--salon-blue), var(--salon-accent));
+  border-radius: 3px;
+}
+.lead {
+  color: #666;
+}
+#staffName {
+  background: linear-gradient(90deg, var(--salon-blue), var(--salon-accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+footer {
+  background: linear-gradient(135deg, var(--salon-dark), var(--salon-blue)) !important;
+}

@@ -2,327 +2,291 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Admin - View All Appointments</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- <link rel="manifest" href="site.webmanifest"> -->
-  <link rel="shortcut icon" type="image/x-icon" href="/public/img/favicon.png">
-  <!-- Place favicon.ico in the root directory -->
-
-  <!-- CSS here -->
-  <link rel="stylesheet" href="/public/css/bootstrap.min.css">
-  <link rel="stylesheet" href="/public/css/owl.carousel.min.css">
-  <link rel="stylesheet" href="/public/css/magnific-popup.css">
-  <link rel="stylesheet" href="/public/css/font-awesome.min.css">
-  <link rel="stylesheet" href="/public/css/themify-icons.css">
-  <link rel="stylesheet" href="/public/css/nice-select.css">
-  <link rel="stylesheet" href="/public/css/flaticon.css">
-  <link rel="stylesheet" href="/public/css/gijgo.css">
-  <link rel="stylesheet" href="/public/css/animate.css">
-  <link rel="stylesheet" href="/public/css/slicknav.css">
-  <link rel="stylesheet" href="/public/css/style.css">
-  <link rel="stylesheet" href="/public/css/responsive.css">
-  <link rel="stylesheet" href="/css/admin-booking.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manage Appointments | Glamour Salon</title>
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin-appointments.css">
+  
 
 </head>
 <body>
 
-<nav class="navbar navbar-light bg-light p-3">
-  <div class="container-fluid">
-    <a class="navbar-brand fw-bold" href="#">Admin Dashboard</a>
-    <a href="/api/dashboard/page" class="btn btn-success">Dashboard</a>
-    <button class="btn btn-outline-danger" onclick="logout()">Logout</button>
+<!-- Navbar/Header -->
+<nav class="navbar navbar-expand-lg sticky-top">
+  <div class="container">
+    <a class="navbar-brand" href="#">
+      <i class="fas fa-spa me-2"></i><span class="text-primary">Glamour</span> Salon
+    </a>
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <div class="d-flex flex-column flex-lg-row gap-3 ms-lg-auto">
+        <a href="/api/dashboard/page" class="btn nav-btn btn-primary">
+          <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+        <a href="/api/staff/page" class="btn nav-btn btn-warning">
+          <i class="fas fa-users"></i> Staff
+        </a>
+        <a href="/api/booking/page" class="btn nav-btn btn-success">
+          <i class="fas fa-calendar-check"></i> Bookings
+        </a>
+        <a href="/api/admin/page" class="btn nav-btn btn-info">
+          <i class="fas fa-cog"></i> Admin
+        </a>
+        <button class="btn nav-btn btn-outline-danger" id="logoutBtn" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </div>
   </div>
 </nav>
 
-<div class="container my-5">
-  <h2 class="text-center mb-4">All Bookings</h2>
-
-  <table class="table table-striped table-hover">
-    <thead>
-      <tr>
-        <th>Service</th>
-        <th>Staff</th>
-        <th>Customer</th>
-        <th>Date</th>
-        <th>Time</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody id="adminBookingsTable">
-      <!-- Dynamic rows here -->
-    </tbody>
-  </table>
-</div>
+<!-- Main Content -->
+<main class="container my-5">
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-body p-4 p-md-5">
+          <h2 class="card-title mb-4">
+            <i class="fas fa-calendar-alt me-2"></i>Manage Appointments
+          </h2>
+          
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead>
+                <tr>
+                  <th>Service</th>
+                  <th>Staff</th>
+                  <th>Customer</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adminBookingsTable">
+                <!-- Dynamic rows will be inserted here -->
+                <tr>
+                  <td colspan="7" class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
 
 <!-- Reschedule Modal -->
-<div id="rescheduleModal" class="modal" style="display: none;">
-  <div class="modal-content">
-    <h4>Reschedule Booking</h4>
-    <div class="mb-3">
-      <label for="rescheduleDateInput">New Date:</label>
-      <input type="date" id="rescheduleDateInput" class="form-control" required />
+<div class="modal fade" id="rescheduleModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-calendar-edit me-2"></i>Reschedule Appointment
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="rescheduleDateInput" class="form-label fw-semibold">
+            <i class="fas fa-calendar-day me-2"></i>New Date
+          </label>
+          <input type="date" id="rescheduleDateInput" class="form-control form-control-lg" required />
+        </div>
+        <div class="mb-3">
+          <label for="rescheduleTimeInput" class="form-label fw-semibold">
+            <i class="fas fa-clock me-2"></i>New Time
+          </label>
+          <input type="time" id="rescheduleTimeInput" class="form-control form-control-lg" required />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Cancel
+        </button>
+        <button type="button" class="btn btn-primary" onclick="submitReschedule()">
+          <i class="fas fa-check me-2"></i>Confirm
+        </button>
+      </div>
     </div>
-    <div class="mb-3">
-      <label for="rescheduleTimeInput">New Time:</label>
-      <input type="time" id="rescheduleTimeInput" class="form-control" required />
-    </div>
-    <button class="btn btn-primary" onclick="submitReschedule()">Confirm</button>
-    <button class="btn btn-secondary" onclick="closeRescheduleModal()">Cancel</button>
   </div>
 </div>
-<!-- slider_area_start -->
-<div class="slider_area">
-  <div class="slider_active owl-carousel">
-      <div class="single_slider d-flex align-items-center justify-content-center slider_bg_1 overlay">
-          <div class="container">
-              <div class="row">
-                  <div class="col-lg-6 col-md-8">
-                      <div class="slider_text">
-                          <h3>Modern barber
-                              shop in center
-                              of the city</h3>
-                          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                          <a href="#" class="boxed-btn3">Appointment</a>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-      <div class="single_slider d-flex align-items-center justify-content-center slider_bg_2 overlay">
-          <div class="container">
-              <div class="row">
-                  <div class="col-lg-6 col-md-8">
-                      <div class="slider_text">
-                          <h3>Modern barber
-                              shop in center
-                              of the city</h3>
-                          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                          <a href="#" class="boxed-btn3">Appointment</a>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-      <div class="single_slider d-flex align-items-center justify-content-center slider_bg_3 overlay">
-          <div class="container">
-              <div class="row">
-                  <div class="col-lg-6 col-md-8">
-                      <div class="slider_text">
-                          <h3>Modern barber
-                              shop in center
-                              of the city</h3>
-                          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                          <a href="#" class="boxed-btn3">Appointment</a>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-  </div>
-</div>
-<!-- slider_area_end -->
 
-<!-- about_area_start -->
-<div class="about_area ">
-<div class="container">
+<!-- Footer -->
+<footer class="py-4">
+  <div class="container">
     <div class="row align-items-center">
-        <div class="col-xl-6 col-lg-6 col-md-6">
-            <div class="about_thumbs">
-                <div class="large_img_1">
-                    <img src="/br-master/br-master/img/about/about_lft.png" alt="">
-                </div>
-                <div class="small_img_1">
-                    <img src="/br-master/br-master/img/about/about_right.png" alt="">
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-6 col-lg-6 col-md-6">
-            <div class="about_info">
-                <div class="section_title mb-20px">
-                    <h3>About Us</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing eliteiusmod tempor incididunt ut labore et dolore magna aliqua. Qpsum suspendisse ultrices gravida. Risus commodo viverra maecenas accumsan lacus vel facilisis. Quis ipsum suspendisse ultr.</p>
-                </div>
-                <p class="opening_hour">
-                    Opening Hour
-                    <span>10:00 am - 10:00 pm</span>
-                </p>
-                <a href="/about" class="boxed-btn3">About Us</a>
-            </div>
-        </div>
+      <div class="col-md-6 text-center text-md-start">
+        <small>&copy; 2025 Glamour Salon. All rights reserved.</small>
+      </div>
+      <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
+        <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
+        <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
+        <a href="#" class="text-white"><i class="fab fa-pinterest"></i></a>
+      </div>
     </div>
-</div>
-</div>
-<!-- about_area_end -->
-
-<div class="service_area">
-<div class="container">
-    <div class="row justify-content-center ">
-        <div class="col-lg-6 col-md-10">
-            <div class="section_title text-center mb-55">
-                <h3>Our Services</h3>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore</p>
-            </div>
-        </div>
-    </div>
-    <div class="row justify-content-center">
-        <div class="col-lg-4 col-md-6">
-            <div class="single_service">
-                 <div class="service_thumb">
-                     <img src="/br-master/br-master/img/service/1.png" alt="">
-                 </div>
-                 <div class="service_content text-center">
-                    <div class="icon">
-                        <i class="flaticon-shave"></i>
-                    </div>
-                    <h3>Smooth Shave</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut</p>
-                 </div>
-            </div>
-        </div>
-        <div class="col-lg-4 col-md-6">
-            <div class="single_service">
-                 <div class="service_thumb">
-                     <img src="/br-master/br-master/img/service/2.png" alt="">
-                 </div>
-                 <div class="service_content text-center">
-                    <div class="icon">
-                        <i class="flaticon-barber"></i>
-                    </div>
-                    <h3>Beard Triming</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut</p>
-                 </div>
-            </div>
-        </div>
-        <div class="col-lg-4 col-md-6">
-            <div class="single_service">
-                 <div class="service_thumb">
-                     <img src="/br-master/br-master/img/service/3.png" alt="">
-                 </div>
-                 <div class="service_content text-center">
-                    <div class="icon">
-                        <i class="flaticon-null"></i>
-                    </div>
-                    <h3>Haircut Styles</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut</p>
-                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-</div>   
-
-<!-- footer_start  -->
-<footer class="footer">
-<div class="footer_top">
-    <div class="container">
-        <div class="row">
-            <div class="col-xl-5 col-md-6 col-lg-5 ">
-                <div class="footer_widget">
-                    <div class="footer_logo">
-                        <a href="#">
-                            <img src="/public/img/logo.png" alt="">
-                        </a>
-                    </div>
-                    <p class="address_text">Lorem ipsum dolor sit amet, consectetur <br> adipiscing elit, sed do eiusmod tempor <br> incididunt ut labore et dolore magna aliqua. <br> Quis ipsum suspendisse.
-                    </p>
-                    <div class="socail_links">
-                        <ul>
-                            <li>
-                                <a href="#">
-                                    <i class="ti-facebook"></i>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <i class="ti-twitter-alt"></i>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <i class="fa fa-dribbble"></i>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <i class="fa fa-instagram"></i>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-3 col-md-6 col-lg-3">
-                <div class="footer_widget">
-                    <h3 class="footer_title">
-                        Information
-                    </h3>
-                    <ul class="links">
-                        <li><a href="#">About</a></li>
-                        <li><a href="#">Services</a></li>
-                        <li><a href="#">Testimonial</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="col-xl-2  col-md-6 col-lg-2">
-                <div class="footer_widget">
-                    <h3 class="footer_title">
-                        Services
-                    </h3>
-                    <ul class="links">
-                        <li><a href="#">Smooth Shave </a></li>
-                        <li><a href="#">Beard Triming</a></li>
-                        <li><a href="#"> Haircut Styles</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="col-xl-2  col-md-6 col-lg-2">
-                <div class="footer_widget">
-                    <h3 class="footer_title">
-                        Follow Us
-                    </h3>
-                    <ul class="links">
-                        <li><a href="#">FaceBook</a></li>
-                        <li><a href="#">Instagram</a></li>
-                        <li><a href="#"> Twitter</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="copy-right_text">
-    <div class="container">
-        <div class="row">
-            <div class="col-xl-12">
-                <p class="copy_right text-center">
-                    <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                    Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
-                    <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
+  </div>
 </footer>
-<!-- footer_end  -->
 
 <!-- Scripts -->
-<script src="/public/style-js/modernizr-3.5.0.min.js"></script>
-<script src="/public/style-js/jquery-1.12.4.min.js"></script>
-<script src="/public/style-js/jquery.slicknav.min.js"></script>
-<script src="/public/style-js/bootstrap.min.js"></script>
-<script src="/public/style-js/owl.carousel.min.js"></script>
-<script src="/public/style-js/popper.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="/js/admin-bookings.js"></script>
-
 <script>
-function logout() {
-  localStorage.removeItem('token');
-  window.location.href = "/api/auth/login";
-}
-</script>
+  // Global variables
+  let currentBookingId = null;
+  const rescheduleModal = new bootstrap.Modal(document.getElementById('rescheduleModal'));
+  
+  // Logout function
+  function logout() {
+    localStorage.removeItem('token');
+    window.location.href = "/api/auth/login";
+  }
 
+  // Fetch all bookings
+  document.addEventListener('DOMContentLoaded', function() {
+    fetchAllBookings();
+  });
+
+  async function fetchAllBookings() {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get('/api/admin/bookings', {
+        headers: { Authorization: token }
+      });
+      
+      const tableBody = document.getElementById('adminBookingsTable');
+      tableBody.innerHTML = '';
+      
+      if (res.data.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="7" class="text-center py-4">
+              <i class="fas fa-calendar-times fa-2x mb-2 text-muted"></i>
+              <p class="mb-0">No appointments found</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      res.data.forEach(booking => {
+        const formattedDate = new Date(booking.date).toLocaleDateString();
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${booking.Service?.name || 'N/A'}</td>
+          <td>${booking.Staff?.name || 'N/A'}</td>
+          <td>${booking.User?.name || 'N/A'}</td>
+          <td>${formattedDate}</td>
+          <td>${booking.time || 'N/A'}</td>
+          <td>
+            <span class="badge badge-${booking.status.toLowerCase()}">
+              ${booking.status}
+            </span>
+          </td>
+          <td class="text-nowrap">
+            <button class="btn btn-sm btn-outline-primary action-btn" title="Reschedule" onclick="openRescheduleModal('${booking.id}')">
+              <i class="fas fa-calendar-plus"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-success action-btn" title="Complete" onclick="completeBooking('${booking.id}')" ${booking.status === 'completed' ? 'disabled' : ''}>
+              <i class="fas fa-check"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger action-btn" title="Cancel" onclick="cancelBooking('${booking.id}')" ${booking.status === 'cancelled' ? 'disabled' : ''}>
+              <i class="fas fa-times"></i>
+            </button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+    } catch (err) {
+      console.error('Error fetching bookings:', err);
+      alert('Failed to load appointments. Please try again.');
+    }
+  }
+
+  function openRescheduleModal(bookingId) {
+    currentBookingId = bookingId;
+    rescheduleModal.show();
+  }
+
+  function closeRescheduleModal() {
+    rescheduleModal.hide();
+  }
+
+  async function submitReschedule() {
+    const newDate = document.getElementById('rescheduleDateInput').value;
+    const newTime = document.getElementById('rescheduleTimeInput').value;
+    
+    if (!newDate || !newTime) {
+      alert('Please select both date and time');
+      return;
+    }
+    
+    try {
+      const token = localStorage.getItem('token');
+      await axios.patch(`/api/admin/bookings/${currentBookingId}/reschedule`, {
+        date: newDate,
+        time: newTime
+      }, {
+        headers: { Authorization: token }
+      });
+      
+      alert('Appointment rescheduled successfully!');
+      rescheduleModal.hide();
+      fetchAllBookings();
+    } catch (err) {
+      console.error('Error rescheduling:', err);
+      alert('Failed to reschedule appointment. Please try again.');
+    }
+  }
+
+  async function completeBooking(bookingId) {
+    if (!confirm('Mark this appointment as completed?')) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      await axios.patch(`/api/admin/bookings/${bookingId}/complete`, null, {
+        headers: { Authorization: token }
+      });
+      
+      alert('Appointment marked as completed!');
+      fetchAllBookings();
+    } catch (err) {
+      console.error('Error completing booking:', err);
+      alert('Failed to complete appointment. Please try again.');
+    }
+  }
+
+  async function cancelBooking(bookingId) {
+    if (!confirm('Are you sure you want to cancel this appointment?')) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      await axios.patch(`/api/admin/bookings/${bookingId}/cancel`, null, {
+        headers: { Authorization: token }
+      });
+      
+      alert('Appointment cancelled successfully!');
+      fetchAllBookings();
+    } catch (err) {
+      console.error('Error cancelling booking:', err);
+      alert('Failed to cancel appointment. Please try again.');
+    }
+  }
+</script>
 </body>
 </html>

@@ -1,7 +1,6 @@
 // booking.js
 
 const baseUrl = window.location.origin;
-const token = localStorage.getItem("token");
 
 // Elements
 const serviceSelect = document.getElementById("serviceSelect");
@@ -43,7 +42,7 @@ async function fetchServices() {
     try {
         showLoader();
         const res = await axios.get('/api/services', {
-            headers: { Authorization: token }
+            
         });
         serviceSelect.innerHTML = '<option value="">Select Service</option>';
 
@@ -65,7 +64,7 @@ async function fetchStaff() {
     try {
         showLoader();
         const res = await axios.get('/api/staff', {
-            headers: { Authorization: token }
+            
         });
         staffSelect.innerHTML = '<option value="">Select Staff</option>';
         res.data.forEach(staff => {
@@ -88,7 +87,7 @@ async function fetchUserBookings(page = 1) {
     try {
         showLoader();
         const res = await axios.get(`/api/booking/user?page=${page}&limit=${APPOINTMENTS_PER_PAGE}`, {
-            headers: { Authorization: token }
+            
         });
         
         allAppointments = res.data;
@@ -239,7 +238,7 @@ bookingForm.addEventListener("submit", async function (e) {
             date,
             time
         }, {
-            headers: { Authorization: token }
+            
         });        
 
         // Then create payment order
@@ -247,7 +246,7 @@ bookingForm.addEventListener("submit", async function (e) {
             bookingId: bookingRes.data.booking.id,
             amount: bookingRes.data.booking.amountPaid 
         },{
-            headers: { Authorization: token }
+            
         });
 
         const options = {
@@ -265,7 +264,7 @@ bookingForm.addEventListener("submit", async function (e) {
                         razorpay_signature: paymentRes.razorpay_signature,
                         bookingId: bookingRes.data.booking.id 
                     },{
-                        headers: { Authorization: token }
+                        
                     });
                     
                     showNotification('Booking and payment successful!', 'success');
@@ -296,65 +295,65 @@ bookingForm.addEventListener("submit", async function (e) {
 });
 
 
-async function processPayment(bookingId, amount) {
-    try {
-        showLoader();
+// async function processPayment(bookingId, amount) {
+//     try {
+//         showLoader();
 
-        const transactionId = `TXN-${Date.now()}`;
+//         const transactionId = `TXN-${Date.now()}`;
 
-        const res = await axios.post("/api/payment/create-order", {
-            bookingId,
-            transactionId
-        }, {
-            headers: { Authorization: token }
-        });
+//         const res = await axios.post("/api/payment/create-order", {
+//             bookingId,
+//             transactionId
+//         }, {
+//             
+//         });
 
-        if (res.status === 200) {
-            const options = {
-                key: res.data.key_id,
-                amount: res.data.amount,
-                currency: "INR",
-                name: "Salon Booking",
-                description: "Service Booking Payment",
-                order_id: res.data.orderId,
-                handler: async function (response) {
-                    await axios.post("/api/payment/confirm-payment", {
-                        bookingId: bookingId,  // ✅ Use passed parameter
-                        success: true,
-                        orderId: response.razorpay_order_id,
-                        payment_id: response.razorpay_payment_id
-                    }, {
-                        headers: { Authorization: token }
-                    });
+//         if (res.status === 200) {
+//             const options = {
+//                 key: res.data.key_id,
+//                 amount: res.data.amount,
+//                 currency: "INR",
+//                 name: "Salon Booking",
+//                 description: "Service Booking Payment",
+//                 order_id: res.data.orderId,
+//                 handler: async function (response) {
+//                     await axios.post("/api/payment/confirm-payment", {
+//                         bookingId: bookingId,  // ✅ Use passed parameter
+//                         success: true,
+//                         orderId: response.razorpay_order_id,
+//                         payment_id: response.razorpay_payment_id
+//                     }, {
+//                         
+//                     });
 
-                    showNotification('Payment successful!', 'success');
-                    fetchUserBookings();
+//                     showNotification('Payment successful!', 'success');
+//                     fetchUserBookings();
 
-                    const modal = document.getElementById('paymentModal');
-                    if (modal) {
-                        const modalInstance = bootstrap.Modal.getInstance(modal);
-                        if (modalInstance) modalInstance.hide();
-                    }
-                },
-                modal: {
-                    ondismiss: function () {
-                        showNotification('Payment was cancelled', 'warning');
-                    }
-                }
-            };
+//                     const modal = document.getElementById('paymentModal');
+//                     if (modal) {
+//                         const modalInstance = bootstrap.Modal.getInstance(modal);
+//                         if (modalInstance) modalInstance.hide();
+//                     }
+//                 },
+//                 modal: {
+//                     ondismiss: function () {
+//                         showNotification('Payment was cancelled', 'warning');
+//                     }
+//                 }
+//             };
 
-            const razorpay = new Razorpay(options);
-            razorpay.open(); // ✅ Trigger Razorpay payment popup
-        } else {
-            showNotification('Payment failed', 'danger');
-        }
-    } catch (err) {
-        console.error('Payment error:', err);
-        showNotification('Payment failed', 'danger');
-    } finally {
-        hideLoader();
-    }
-}
+//             const razorpay = new Razorpay(options);
+//             razorpay.open(); // ✅ Trigger Razorpay payment popup
+//         } else {
+//             showNotification('Payment failed', 'danger');
+//         }
+//     } catch (err) {
+//         console.error('Payment error:', err);
+//         showNotification('Payment failed', 'danger');
+//     } finally {
+//         hideLoader();
+//     }
+// }
 
 
 // Show booking details in modal
@@ -411,7 +410,9 @@ function showBookingDetails(bookingId) {
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <a href="/api/reviews/submit/${bookingId}" class="btn nav-btn btn-warning">
+                                            <i class="fas fa-concierge-bell"></i> Add review</a>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
@@ -443,7 +444,7 @@ async function cancelBooking(id) {
     try {
         showLoader();
         await axios.patch(`/api/booking/cancel/${id}`, null, {
-            headers: { Authorization: token }
+            
         });
         
         hideLoader();
@@ -471,7 +472,7 @@ async function rescheduleBooking(id) {
             date: newDate,
             time: newTime
         }, {
-            headers: { Authorization: token }
+            
         });
         
         hideLoader();
@@ -500,7 +501,7 @@ if (payNowBtn) {
       const res = await axios.post("/api/payment/create-order", {
         bookingId: currentBookingId
       }, {
-        headers: { Authorization: token }
+        
       });
 
       const options = {
@@ -517,7 +518,7 @@ if (payNowBtn) {
           orderId: res.razorpay_order_id,
           payment_id: res.razorpay_payment_id
         }, {
-          headers: { Authorization: token }
+          
         });
         alert("✅ Payment successful!");
         payNowBtn.style.display = "none";

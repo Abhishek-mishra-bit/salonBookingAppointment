@@ -54,8 +54,7 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;    
-
+    const { email, password } = req.body;
     const user = await User.findOne({ where: { email } });
     if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
@@ -65,10 +64,16 @@ exports.login = async (req, res) => {
     // Check role if provided
     
 
-    const token = generateToken(user.id);
-    console.log("token is::", token);
-    
-    res.status(200).json({ token, user: { id: user.id, name: user.name, email: user.email} });
+    const token = generateToken(user);
+    // Set JWT as HttpOnly cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+    // Respond with user info only (no token)
+    res.status(200).json({ user: { id: user.id, name: user.name, email: user.email, role: user.role} });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error during login" });

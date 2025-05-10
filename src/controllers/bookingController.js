@@ -48,14 +48,14 @@ exports.createBooking = async (req, res) => {
   }
 };
 
-// Get user's bookings
-// Update the getUserBookings function in bookingController.js
+// Get bookings for the logged-in customer only
 exports.getUserBookings = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 5;
     const offset = (page - 1) * limit;
 
+    // Only fetch bookings for the logged-in customer
     const { count, rows: bookings } = await Booking.findAndCountAll({
       where: { userId: req.user.id },
       include: [

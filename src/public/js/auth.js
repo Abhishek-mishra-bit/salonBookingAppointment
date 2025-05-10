@@ -60,17 +60,22 @@ if (loginForm) {
     }
 
     try {
-      const res = await axios.post("/api/auth/login", {
-        email,
-        password,
-        role
-      });
-      console.log("token", res.data.token);
-      
-      localStorage.setItem("token", res.data.token);
+      // Login: sets HttpOnly cookie
+      await axios.post("/api/auth/login", { email, password });
 
-      alert("Login successful!");
-      window.location.href = "/api/dashboard/page";
+      // Now fetch user profile to get the role
+      const profileRes = await axios.get("/api/dashboard/auth/profile");
+      const role = profileRes.data.role;
+
+      if (role === "admin") {
+        window.location.href = "/admin-dashboard.html";
+      } else if (role === "customer") {
+        window.location.href = "/customer-dashboard.html";
+      } else if (role === "staff") {
+        window.location.href = "/staff-dashboard.html";
+      } else {
+        window.location.href = "/dashboard.html";
+      }
     } catch (err) {
       console.error("Login error:", err);
       const errorMsg = err.response?.data?.message || "Login failed. Please check your credentials.";

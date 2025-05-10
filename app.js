@@ -2,6 +2,8 @@ const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const cookieParser = require('cookie-parser');
+
 const sequelize = require("./src/utils/db");
 const Review = require("./src/models/reviewModel")
 const cron_job = require("./src/cron/reminderJob");
@@ -21,6 +23,7 @@ const reviewRoutes = require('./src/routes/reviewRoutes');
 // Built-in Express middleware for parsing JSON
 const app = express();
 app.use(cors());
+app.use(cookieParser());
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -28,8 +31,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(express.static(path.join(__dirname, "src", "public")));
 app.use('/public', express.static(path.join(__dirname, 'src/public')));
-// Serve br-master assets for the new UI
-app.use('/br-master/br-master', express.static(path.join(__dirname, 'br-master', 'br-master')));
+app.use(express.static(path.join(__dirname, 'views')));
 
 // Serve the landing page at "/"
 app.get("/", (req, res) => {

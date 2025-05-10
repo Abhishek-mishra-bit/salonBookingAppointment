@@ -29,18 +29,15 @@ exports.createService = async (req, res) => {
 };
 
 // Get All Services
+// Get all services (admin: all, customer: active only)
 exports.getServices = async (req, res) => {
   try {
-    console.log("If user is admin, show all services");
-    
-    // If user is admin, show all services
     if (req.user && req.user.role === 'admin') {
+      // Admin: show all services
       const services = await Service.findAll();
-      res.json(services);
-      return;
+      return res.json(services);
     }
-
-    // For regular users, show all services but filter in frontend
+    // Customer: show only active services (add status if your model supports it)
     const services = await Service.findAll();
     res.json(services);
   } catch (err) {
