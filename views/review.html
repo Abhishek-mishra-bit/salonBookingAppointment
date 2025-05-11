@@ -269,18 +269,52 @@
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="/js/shared-nav.js"></script>
 <!-- <script src="/js/review.js"></script> -->
 <script>
+  // SweetAlert2 helper functions
+  function showToast(title, icon = 'success') {
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      customClass: {
+        popup: 'colored-toast'
+      },
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+      }
+    });
+    
+    Toast.fire({
+      icon: icon,
+      title: title
+    });
+  }
+  
+  function showError(title, text = '') {
+    Swal.fire({
+      title: title,
+      text: text,
+      icon: 'error',
+      confirmButtonColor: '#c17c74',
+      confirmButtonText: 'OK'
+    });
+  }
+  
   // Logout function
   function logout() {
-        axios.post("/api/auth/logout", {}, { withCredentials: true })
-        .then(() => {
-          window.location.href = "/api/auth/login";
-        })
-        .catch(err => {
-          console.error("Logout failed", err);
-        });
+    axios.post("/api/auth/logout", {}, { withCredentials: true })
+    .then(() => {
+      window.location.href = "/api/auth/login";
+    })
+    .catch(err => {
+      console.error("Logout failed", err);
+    });
   }
 
   // Star rating functionality
@@ -360,7 +394,7 @@
     const comment = document.getElementById('comment').value;
     
     if (!staffId || !rating) {
-      alert('Please select a staff member and provide a rating');
+      showError('Validation Error', 'Please select a staff member and provide a rating');
       return;
     }
     
@@ -374,9 +408,13 @@
         withCredentials: true
       });
       
-      // Show success message
-      const successMessage = document.getElementById('successMessage');
-      successMessage.classList.remove('d-none');
+      // Show success notification with SweetAlert2
+      Swal.fire({
+        title: 'Thank You!',
+        text: 'Your review has been submitted successfully.',
+        icon: 'success',
+        confirmButtonColor: '#9aab89'
+      });
       
       // Reset form
       document.getElementById('reviewForm').reset();
@@ -384,14 +422,9 @@
         star.classList.remove('active');
       });
       
-      // Hide success message after 5 seconds
-      setTimeout(() => {
-        successMessage.classList.add('d-none');
-      }, 5000);
-      
     } catch (err) {
       console.error('Error submitting review:', err);
-      alert('Failed to submit review. Please try again.');
+      showError('Error', 'Failed to submit review. Please try again.');
     }
   }
 </script>

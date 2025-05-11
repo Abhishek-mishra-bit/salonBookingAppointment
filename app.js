@@ -5,7 +5,9 @@ const cors = require("cors");
 const cookieParser = require('cookie-parser');
 
 const sequelize = require("./src/utils/db");
-const Review = require("./src/models/reviewModel")
+
+// Import model associations file first to establish relationships
+const associations = require("./src/models/associations");
 const cron_job = require("./src/cron/reminderJob");
 
 const authRoutes = require("./src/routes/authRoutes");

@@ -1,3 +1,50 @@
+// SweetAlert2 helper functions
+function showToast(title, icon = 'success') {
+  const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    customClass: {
+      popup: 'colored-toast'
+    },
+    didOpen: (toast) => {
+      toast.addEventListener('mouseenter', Swal.stopTimer)
+      toast.addEventListener('mouseleave', Swal.resumeTimer)
+    }
+  });
+  
+  Toast.fire({
+    icon: icon,
+    title: title
+  });
+}
+
+function showError(title, text = '') {
+  Swal.fire({
+    title: title,
+    text: text,
+    icon: 'error',
+    confirmButtonColor: '#8a6d62',
+    confirmButtonText: 'OK'
+  });
+}
+
+async function confirmAction(title, text, icon = 'warning') {
+  const result = await Swal.fire({
+    title: title,
+    text: text,
+    icon: icon,
+    showCancelButton: true,
+    confirmButtonColor: '#9aab89',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Yes',
+    cancelButtonText: 'No'
+  });
+  
+  return result.isConfirmed;
+}
 
 const loader = document.getElementById("loader");
 const staffForm = document.getElementById("staffForm");
@@ -39,7 +86,7 @@ async function fetchAllStaff() {
 
   } catch (err) {
     console.error("Error fetching staff:", err);
-    alert("Failed to load staff!");
+    showError("Error", "Failed to load staff!");
   }
   loader.style.display = "none";
 }
@@ -64,13 +111,13 @@ staffForm.addEventListener("submit", async (e) => {
       await axios.put(`/api/staff/${staffId}`, staffData, {
         headers: { Authorization: token }
       });
-      alert("✅ Staff updated successfully!");
+      showToast("Staff updated successfully!");
     } else {
       // Create
       await axios.post(`/api/staff`, staffData, {
         headers: { Authorization: token }
       });
-      alert("✅ Staff added successfully!");
+      showToast("Staff added successfully!");
     }
 
     staffForm.reset();
@@ -79,7 +126,7 @@ staffForm.addEventListener("submit", async (e) => {
 
   } catch (err) {
     console.error("Error saving staff:", err);
-    alert("Error saving staff. Check console!");
+    showError("Error", "Failed to save staff information. Please try again.");
   }
 
   loader.style.display = "none";
@@ -100,22 +147,28 @@ async function editStaff(id) {
     document.getElementById("available").value = staff.available ? "true" : "false";
   } catch (err) {
     console.error("Error loading staff:", err);
-    alert("Failed to load staff info!");
+    showError("Error", "Failed to load staff information. Please try again.");
   }
 }
 
 // 🌟 Delete staff
 async function deleteStaff(id) {
-  if (!confirm("Are you sure you want to delete this staff?")) return;
+  const confirmed = await confirmAction(
+    'Delete Staff',
+    'Are you sure you want to delete this staff member?',
+    'warning'
+  );
+  
+  if (!confirmed) return;
 
   try {
     loader.style.display = "flex";
     await axios.delete(`/api/staff/${id}`);
-    alert("🗑️ Staff deleted successfully!");
+    showToast("Staff deleted successfully!");
     fetchAllStaff();
   } catch (err) {
     console.error("Error deleting staff:", err);
-    alert("Failed to delete staff!");
+    showError("Error", "Failed to delete staff. Please try again.");
   }
   loader.style.display = "none";
 }

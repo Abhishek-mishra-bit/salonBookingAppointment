@@ -10,6 +10,9 @@ router.get('/page',protect,adminOnly, adminController.getAllBookingPage);
 
 // Bookings management
 router.get('/bookings', protect, adminOnly, adminController.getAllBookings);
+router.patch('/bookings/:id/complete', protect, adminOnly, adminController.completeBooking);
+router.patch('/bookings/:id/cancel', protect, adminOnly, adminController.cancelBooking);
+router.patch('/bookings/:id/reschedule', protect, adminOnly, adminController.rescheduleBooking);
 
 // Analytics endpoints
 router.get('/analytics', protect, adminOnly, adminController.getAnalytics);

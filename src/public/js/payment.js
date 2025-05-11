@@ -1,3 +1,46 @@
+// SweetAlert2 helper functions
+function showToast(title, icon = 'success') {
+  const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    customClass: {
+      popup: 'colored-toast'
+    },
+    didOpen: (toast) => {
+      toast.addEventListener('mouseenter', Swal.stopTimer)
+      toast.addEventListener('mouseleave', Swal.resumeTimer)
+    }
+  });
+  
+  Toast.fire({
+    icon: icon,
+    title: title
+  });
+}
+
+function showError(title, text = '') {
+  Swal.fire({
+    title: title,
+    text: text,
+    icon: 'error',
+    confirmButtonColor: '#8a6d62',
+    confirmButtonText: 'OK'
+  });
+}
+
+async function showSuccess(title, text = '') {
+  await Swal.fire({
+    title: title,
+    text: text,
+    icon: 'success',
+    confirmButtonColor: '#9aab89',
+    confirmButtonText: 'OK'
+  });
+}
+
 async function payNow() {
     const token = localStorage.getItem("token");
 
@@ -27,7 +70,7 @@ async function payNow() {
             status: "success"
           });
 
-          alert("✅ Payment Successful! Thank you.");
+          await showSuccess("Payment Successful!", "Thank you for your payment. Your booking has been confirmed.");
         },
         prefill: {
           name: "Your Name",
@@ -40,11 +83,11 @@ async function payNow() {
       rzp.open();
 
       rzp.on('payment.failed', function (response) {
-        alert("❌ Payment failed: " + response.error.description);
+        showError("Payment Failed", response.error.description || "There was an issue processing your payment. Please try again.");
       });
 
     } catch (err) {
       console.error("Payment Error:", err);
-      alert("Something went wrong during payment.");
+      showError("Payment Error", "Something went wrong during payment. Please try again later.");
     }
   }

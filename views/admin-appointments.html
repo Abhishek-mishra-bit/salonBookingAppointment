@@ -69,6 +69,7 @@
               </tbody>
             </table>
           </div>
+          <div id="adminBookingsPagination"></div>
         </div>
       </div>
     </div>
@@ -131,11 +132,73 @@
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="/js/shared-nav.js"></script>
 <script>
   // Global variables
   let currentBookingId = null;
   const rescheduleModal = new bootstrap.Modal(document.getElementById('rescheduleModal'));
+  
+  // Toast notification function (replaces alerts)
+  function showToast(title, icon = 'success') {
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      customClass: {
+        popup: 'colored-toast'
+      },
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+      }
+    });
+    
+    Toast.fire({
+      icon: icon,
+      title: title
+    });
+  }
+  
+  // Show error function
+  function showError(title, text = '') {
+    Swal.fire({
+      title: title,
+      text: text,
+      icon: 'error',
+      confirmButtonColor: '#dc3545',
+      confirmButtonText: 'OK'
+    });
+  }
+  
+  // Confirmation dialog function
+  async function confirmAction(title, text, icon = 'warning') {
+    const result = await Swal.fire({
+      title: title,
+      text: text,
+      icon: icon,
+      showCancelButton: true,
+      confirmButtonColor: '#198754',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes',
+      cancelButtonText: 'No'
+    });
+    
+    return result.isConfirmed;
+  }
+  
+  // Helper function to get the correct Bootstrap 5 badge class based on status
+  function getStatusBadgeClass(status) {
+    switch(status) {
+      case 'confirmed': return 'bg-success';
+      case 'pending': return 'bg-warning text-dark';
+      case 'cancelled': return 'bg-danger';
+      case 'completed': return 'bg-info';
+      default: return 'bg-secondary';
+    }
+  }
   
   // Logout function
   function logout() {
@@ -148,17 +211,38 @@
     fetchAllBookings();
   });
 
-  async function fetchAllBookings() {
+  async function fetchAllBookings(page = 1) {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('/api/admin/bookings', {
+      const tableBody = document.getElementById('adminBookingsTable');
+      const paginationContainer = document.getElementById('adminBookingsPagination');
+      
+      // Show loading
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="7" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </td>
+        </tr>
+      `;
+      
+      // Call the API with pagination parameters
+      const res = await axios.get(`/api/admin/bookings?page=${page}&limit=10`, {
         headers: { Authorization: token }
       });
       
-      const tableBody = document.getElementById('adminBookingsTable');
+      // Get the data from the response
+      const data = res.data;
+      console.log('Bookings data:', data);
+      
+      // Extract bookings array from the response
+      const bookings = data.bookings || [];
+      
       tableBody.innerHTML = '';
       
-      if (res.data.length === 0) {
+      if (bookings.length === 0) {
         tableBody.innerHTML = `
           <tr>
             <td colspan="7" class="text-center py-4">
@@ -167,10 +251,19 @@
             </td>
           </tr>
         `;
+        if (paginationContainer) paginationContainer.innerHTML = '';
         return;
       }
       
-      res.data.forEach(booking => {
+      // Generate pagination if we have pagination container and total pages
+      if (paginationContainer && data.totalPages > 1) {
+        renderPagination(data.currentPage, data.totalPages);
+      } else if (paginationContainer) {
+        paginationContainer.innerHTML = '';
+      }
+      
+      // Render each booking row
+      bookings.forEach(booking => {
         const formattedDate = new Date(booking.date).toLocaleDateString();
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -180,8 +273,8 @@
           <td>${formattedDate}</td>
           <td>${booking.time || 'N/A'}</td>
           <td>
-            <span class="badge badge-${booking.status.toLowerCase()}">
-              ${booking.status}
+            <span class="badge ${getStatusBadgeClass(booking.status)}">
+              ${booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
             </span>
           </td>
           <td class="text-nowrap">
@@ -200,7 +293,7 @@
       });
     } catch (err) {
       console.error('Error fetching bookings:', err);
-      alert('Failed to load appointments. Please try again.');
+      showError('Error', 'Failed to load appointments. Please try again.');
     }
   }
 
@@ -218,7 +311,7 @@
     const newTime = document.getElementById('rescheduleTimeInput').value;
     
     if (!newDate || !newTime) {
-      alert('Please select both date and time');
+      showError('Validation Error', 'Please select both date and time');
       return;
     }
     
@@ -231,17 +324,18 @@
         headers: { Authorization: token }
       });
       
-      alert('Appointment rescheduled successfully!');
+      showToast('Appointment rescheduled successfully!');
       rescheduleModal.hide();
       fetchAllBookings();
     } catch (err) {
       console.error('Error rescheduling:', err);
-      alert('Failed to reschedule appointment. Please try again.');
+      showError('Error', 'Failed to reschedule appointment. Please try again.');
     }
   }
 
   async function completeBooking(bookingId) {
-    if (!confirm('Mark this appointment as completed?')) return;
+    const confirmed = await confirmAction('Complete Appointment', 'Mark this appointment as completed?', 'question');
+    if (!confirmed) return;
     
     try {
       const token = localStorage.getItem('token');
@@ -249,16 +343,17 @@
         headers: { Authorization: token }
       });
       
-      alert('Appointment marked as completed!');
+      showToast('Appointment marked as completed!');
       fetchAllBookings();
     } catch (err) {
       console.error('Error completing booking:', err);
-      alert('Failed to complete appointment. Please try again.');
+      showError('Error', 'Failed to complete appointment. Please try again.');
     }
   }
 
   async function cancelBooking(bookingId) {
-    if (!confirm('Are you sure you want to cancel this appointment?')) return;
+    const confirmed = await confirmAction('Cancel Appointment', 'Are you sure you want to cancel this appointment?', 'warning');
+    if (!confirmed) return;
     
     try {
       const token = localStorage.getItem('token');
@@ -266,12 +361,46 @@
         headers: { Authorization: token }
       });
       
-      alert('Appointment cancelled successfully!');
+      showToast('Appointment cancelled successfully!');
       fetchAllBookings();
     } catch (err) {
       console.error('Error cancelling booking:', err);
-      alert('Failed to cancel appointment. Please try again.');
+      showError('Error', 'Failed to cancel appointment. Please try again.');
     }
+  }
+
+  function renderPagination(currentPage, totalPages) {
+    const paginationContainer = document.getElementById('adminBookingsPagination');
+    paginationContainer.innerHTML = '';
+    
+    // Previous button
+    const prevButton = document.createElement('button');
+    prevButton.classList.add('btn', 'btn-sm', 'btn-outline-primary', 'me-2');
+    prevButton.textContent = '<';
+    prevButton.disabled = currentPage === 1;
+    prevButton.onclick = () => fetchAllBookings(currentPage - 1);
+    paginationContainer.appendChild(prevButton);
+    
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+      const pageNumber = document.createElement('button');
+      pageNumber.classList.add('btn', 'btn-sm', 'btn-outline-primary', 'me-2');
+      pageNumber.textContent = i;
+      pageNumber.onclick = () => fetchAllBookings(i);
+      if (i === currentPage) {
+        pageNumber.classList.add('active');
+        pageNumber.disabled = true;
+      }
+      paginationContainer.appendChild(pageNumber);
+    }
+    
+    // Next button
+    const nextButton = document.createElement('button');
+    nextButton.classList.add('btn', 'btn-sm', 'btn-outline-primary');
+    nextButton.textContent = '>';
+    nextButton.disabled = currentPage === totalPages;
+    nextButton.onclick = () => fetchAllBookings(currentPage + 1);
+    paginationContainer.appendChild(nextButton);
   }
 </script>
 </body>

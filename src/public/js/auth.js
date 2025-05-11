@@ -1,5 +1,52 @@
 const baseUrl = window.location.origin;
 
+// SweetAlert2 helper functions
+function showToast(title, icon = 'success') {
+  const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    customClass: {
+      popup: 'colored-toast'
+    },
+    didOpen: (toast) => {
+      toast.addEventListener('mouseenter', Swal.stopTimer)
+      toast.addEventListener('mouseleave', Swal.resumeTimer)
+    }
+  });
+  
+  Toast.fire({
+    icon: icon,
+    title: title
+  });
+}
+
+function showError(title, text = '') {
+  Swal.fire({
+    title: title,
+    text: text,
+    icon: 'error',
+    confirmButtonColor: '#8a6d62',
+    confirmButtonText: 'OK'
+  });
+}
+
+function showSuccess(title, text = '', redirect = null) {
+  Swal.fire({
+    title: title,
+    text: text,
+    icon: 'success',
+    confirmButtonColor: '#9aab89',
+    confirmButtonText: 'OK'
+  }).then(() => {
+    if (redirect) {
+      window.location.href = redirect;
+    }
+  });
+}
+
 // Signup handler
 const signupForm = document.getElementById("signupForm");
 function getRoleFromSignupQuery() {
@@ -18,7 +65,7 @@ if (signupForm) {
 
     // Basic client-side validation
     if (!name || !email || !phone || !password) {
-      return alert("Please fill in all fields");
+      return showError("Validation Error", "Please fill in all fields");
     }
 
     try {
@@ -29,12 +76,12 @@ if (signupForm) {
         password,
       });
 
-      alert("Signup successful! Please login.");
-      window.location.href = "/api/auth/login"; // Redirect to login page
+      showSuccess("Signup Successful", "Your account has been created. Please login with your credentials.", "/api/auth/login");
+      // No need for manual redirect as showSuccess handles it
     } catch (err) {
       console.error("Signup error:", err);
       const errorMsg = err.response?.data?.message || "Signup failed. Please try again.";
-      alert(errorMsg);
+      showError("Registration Error", errorMsg);
     }
   });
 }
@@ -56,7 +103,7 @@ if (loginForm) {
     const role = getRoleFromQuery();
 
     if (!email || !password) {
-      return alert("Please enter both email and password");
+      return showError("Validation Error", "Please enter both email and password");
     }
 
     try {
@@ -79,7 +126,7 @@ if (loginForm) {
     } catch (err) {
       console.error("Login error:", err);
       const errorMsg = err.response?.data?.message || "Login failed. Please check your credentials.";
-      alert(errorMsg);
+      showError("Login Error", errorMsg);
     }
   });
 }

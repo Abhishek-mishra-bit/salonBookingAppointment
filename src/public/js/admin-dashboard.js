@@ -2,6 +2,54 @@
 const baseUrl = window.location.origin;
 let userData = null;
 
+// SweetAlert2 helper functions
+function showToast(title, icon = 'success') {
+  const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    customClass: {
+      popup: 'colored-toast'
+    },
+    didOpen: (toast) => {
+      toast.addEventListener('mouseenter', Swal.stopTimer)
+      toast.addEventListener('mouseleave', Swal.resumeTimer)
+    }
+  });
+  
+  Toast.fire({
+    icon: icon,
+    title: title
+  });
+}
+
+function showError(title, text = '') {
+  Swal.fire({
+    title: title,
+    text: text,
+    icon: 'error',
+    confirmButtonColor: '#8a6d62',
+    confirmButtonText: 'OK'
+  });
+}
+
+async function confirmAction(title, text, icon = 'warning') {
+  const result = await Swal.fire({
+    title: title,
+    text: text,
+    icon: icon,
+    showCancelButton: true,
+    confirmButtonColor: '#9aab89',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Yes',
+    cancelButtonText: 'No'
+  });
+  
+  return result.isConfirmed;
+}
+
 // Main initialization function
 document.addEventListener('DOMContentLoaded', function() {
   // Fetch user data
@@ -79,7 +127,7 @@ function updateAdminProfile() {
   
   // Simple validation
   if (!profileName || !profileEmail) {
-    alert('Name and email are required!');
+    showError('Validation Error', 'Name and email are required!');
     return;
   }
   
@@ -108,12 +156,12 @@ function updateAdminProfile() {
     const profileModal = bootstrap.Modal.getInstance(document.getElementById('adminProfileModal'));
     profileModal.hide();
     
-    // Show toast or alert
-    alert('Profile updated successfully!');
+    // Show success toast
+    showToast('Profile updated successfully!');
   })
   .catch(err => {
     console.error('Error updating profile:', err);
-    alert('Failed to update profile. Please try again.');
+    showError('Error', 'Failed to update profile. Please try again.');
   });
 }
 
@@ -177,23 +225,32 @@ function initializeActivityList() {
   fetchActivity('all');
 }
 
-// Fetch activity data
-function fetchActivity(filter = 'all') {
+// Global variable to track current activity page
+let currentActivityPage = 1;
+
+// Fetch activity data with pagination
+function fetchActivity(filter = 'all', page = 1) {
   const activityList = document.getElementById('activityList');
+  const activityPagination = document.getElementById('activityPagination');
   if (!activityList) return;
+  
+  // Update current page
+  currentActivityPage = page;
   
   // Show loading
   activityList.innerHTML = '<li class="list-group-item text-center py-5">Loading activity...</li>';
   
-  // Fetch activities from server
-  axios.get(`/api/admin/activities?filter=${filter}`, {
+  // Fetch activities from server with pagination
+  axios.get(`/api/admin/activities?filter=${filter}&page=${page}&limit=8`, {
     withCredentials: true
   })
   .then(res => {
-    const activities = res.data;
+    const data = res.data;
+    const activities = data.activities;
     
     if (activities.length === 0) {
       activityList.innerHTML = '<li class="list-group-item text-center py-5">No activities found</li>';
+      if (activityPagination) activityPagination.innerHTML = '';
       return;
     }
     
@@ -238,11 +295,81 @@ function fetchActivity(filter = 'all') {
       
       activityList.appendChild(li);
     });
+    
+    // Generate pagination
+    if (activityPagination) {
+      generateActivityPagination(data.currentPage, data.totalPages, filter);
+    }
   })
   .catch(err => {
     console.error('Error fetching activities:', err);
     activityList.innerHTML = '<li class="list-group-item text-center py-5 text-danger">Error loading activities</li>';
+    if (activityPagination) activityPagination.innerHTML = '';
   });
+}
+
+// Generate pagination controls for activity list
+function generateActivityPagination(currentPage, totalPages, filter) {
+  const paginationContainer = document.getElementById('activityPagination');
+  if (!paginationContainer) return;
+  
+  paginationContainer.innerHTML = '';
+  
+  // Only show pagination if we have more than 1 page
+  if (totalPages <= 1) return;
+  
+  // Previous button
+  const prevLi = document.createElement('li');
+  prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+  const prevLink = document.createElement('a');
+  prevLink.className = 'page-link';
+  prevLink.href = '#';
+  prevLink.innerHTML = '&laquo;';
+  prevLink.setAttribute('aria-label', 'Previous');
+  if (currentPage > 1) {
+    prevLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      fetchActivity(filter, currentPage - 1);
+    });
+  }
+  prevLi.appendChild(prevLink);
+  paginationContainer.appendChild(prevLi);
+  
+  // Generate page buttons (up to 3 pages with current page in the middle due to limited space)
+  const startPage = Math.max(1, currentPage - 1);
+  const endPage = Math.min(totalPages, startPage + 2);
+  
+  for (let i = startPage; i <= endPage; i++) {
+    const pageLi = document.createElement('li');
+    pageLi.className = `page-item ${i === currentPage ? 'active' : ''}`;
+    const pageLink = document.createElement('a');
+    pageLink.className = 'page-link';
+    pageLink.href = '#';
+    pageLink.textContent = i;
+    pageLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      fetchActivity(filter, i);
+    });
+    pageLi.appendChild(pageLink);
+    paginationContainer.appendChild(pageLi);
+  }
+  
+  // Next button
+  const nextLi = document.createElement('li');
+  nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+  const nextLink = document.createElement('a');
+  nextLink.className = 'page-link';
+  nextLink.href = '#';
+  nextLink.innerHTML = '&raquo;';
+  nextLink.setAttribute('aria-label', 'Next');
+  if (currentPage < totalPages) {
+    nextLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      fetchActivity(filter, currentPage + 1);
+    });
+  }
+  nextLi.appendChild(nextLink);
+  paginationContainer.appendChild(nextLi);
 }
 
 // Initialize today's schedule
@@ -331,7 +458,12 @@ function initializeUserManagement() {
   if (addUserBtn) {
     addUserBtn.addEventListener('click', function() {
       // TODO: Implement add user functionality
-      alert('Add user functionality will be implemented soon');
+      Swal.fire({
+        title: 'Coming Soon',
+        text: 'Add user functionality will be implemented soon',
+        icon: 'info',
+        confirmButtonColor: '#8a6d62'
+      });
     });
   }
   
@@ -344,23 +476,32 @@ function initializeUserManagement() {
   }
 }
 
-// Fetch users for user management
-function fetchUsers(search = '', role = '') {
+// Global variable to track current page
+let currentUserPage = 1;
+
+// Fetch users for user management with pagination
+function fetchUsers(search = '', role = '', page = 1) {
   const usersTableBody = document.getElementById('usersTableBody');
+  const paginationContainer = document.getElementById('usersPagination');
   if (!usersTableBody) return;
+  
+  // Update current page
+  currentUserPage = page;
   
   // Show loading
   usersTableBody.innerHTML = '<tr><td colspan="5" class="text-center">Loading users...</td></tr>';
   
-  // Fetch users from server
-  axios.get(`/api/admin/users?search=${search}&role=${role}`, {
+  // Fetch users from server with pagination
+  axios.get(`/api/admin/users?search=${search}&role=${role}&page=${page}&limit=10`, {
     withCredentials: true
   })
   .then(res => {
-    const users = res.data;
+    const data = res.data;
+    const users = data.users;
     
     if (users.length === 0) {
       usersTableBody.innerHTML = '<tr><td colspan="5" class="text-center">No users found</td></tr>';
+      paginationContainer.innerHTML = ''; // Clear pagination if no results
       return;
     }
     
@@ -399,11 +540,79 @@ function fetchUsers(search = '', role = '') {
       
       usersTableBody.appendChild(tr);
     });
+    
+    // Generate pagination
+    generatePagination(data.currentPage, data.totalPages, search, role);
   })
   .catch(err => {
     console.error('Error fetching users:', err);
     usersTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error loading users</td></tr>';
+    paginationContainer.innerHTML = ''; // Clear pagination on error
   });
+}
+
+// Generate pagination controls
+function generatePagination(currentPage, totalPages, search, role) {
+  const paginationContainer = document.getElementById('usersPagination');
+  if (!paginationContainer) return;
+  
+  paginationContainer.innerHTML = '';
+  
+  // Only show pagination if we have more than 1 page
+  if (totalPages <= 1) return;
+  
+  // Previous button
+  const prevLi = document.createElement('li');
+  prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+  const prevLink = document.createElement('a');
+  prevLink.className = 'page-link';
+  prevLink.href = '#';
+  prevLink.innerHTML = '&laquo;';
+  prevLink.setAttribute('aria-label', 'Previous');
+  if (currentPage > 1) {
+    prevLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      fetchUsers(search, role, currentPage - 1);
+    });
+  }
+  prevLi.appendChild(prevLink);
+  paginationContainer.appendChild(prevLi);
+  
+  // Generate page buttons (up to 5 pages with current page in the middle)
+  const startPage = Math.max(1, currentPage - 2);
+  const endPage = Math.min(totalPages, startPage + 4);
+  
+  for (let i = startPage; i <= endPage; i++) {
+    const pageLi = document.createElement('li');
+    pageLi.className = `page-item ${i === currentPage ? 'active' : ''}`;
+    const pageLink = document.createElement('a');
+    pageLink.className = 'page-link';
+    pageLink.href = '#';
+    pageLink.textContent = i;
+    pageLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      fetchUsers(search, role, i);
+    });
+    pageLi.appendChild(pageLink);
+    paginationContainer.appendChild(pageLi);
+  }
+  
+  // Next button
+  const nextLi = document.createElement('li');
+  nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+  const nextLink = document.createElement('a');
+  nextLink.className = 'page-link';
+  nextLink.href = '#';
+  nextLink.innerHTML = '&raquo;';
+  nextLink.setAttribute('aria-label', 'Next');
+  if (currentPage < totalPages) {
+    nextLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      fetchUsers(search, role, currentPage + 1);
+    });
+  }
+  nextLi.appendChild(nextLink);
+  paginationContainer.appendChild(nextLi);
 }
 
 // Edit user function

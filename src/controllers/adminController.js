@@ -18,16 +18,45 @@ exports.getAllBookingPage = async(req, res)=>{
 
 exports.getAllBookings = async (req, res) => {
   try {
+    const { page = 1, limit = 10, status } = req.query;
+    
+    // Convert pagination parameters to numbers
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const offset = (pageNum - 1) * limitNum;
+    
+    // Build where condition
+    const whereCondition = {};
+    if (status && status !== 'all') {
+      whereCondition.status = status;
+    }
+    
+    // Get total count for pagination
+    const count = await Booking.count({ where: whereCondition });
+    
+    // Fetch paginated bookings
     const bookings = await Booking.findAll({
+      where: whereCondition,
       include: [
-        { model: Service, attributes: ['name'] },
+        { model: Service, attributes: ['name', 'price'] },
         { model: Staff, attributes: ['name'] },
-        { model: User, attributes: ['name'] }  // Add user name (customer)
-      ]
+        { model: User, attributes: ['name', 'email', 'phone'] }
+      ],
+      order: [['date', 'DESC'], ['time', 'ASC']],
+      limit: limitNum,
+      offset: offset
     });
-    res.json(bookings);
+    
+    // Return with pagination metadata
+    res.json({
+      total: count,
+      totalPages: Math.ceil(count / limitNum),
+      currentPage: pageNum,
+      limit: limitNum,
+      bookings: bookings
+    });
   } catch (err) {
-    console.error(err);
+    console.error('Error fetching all bookings:', err);
     res.status(500).json({ error: "Failed to fetch bookings" });
   }
 };
@@ -157,11 +186,16 @@ exports.getAnalytics = async (req, res) => {
 };
 
 /**
- * Get all users for admin management
+ * Get all users for admin management with pagination
  */
 exports.getAllUsers = async (req, res) => {
   try {
-    const { search, role } = req.query;
+    const { search, role, page = 1, limit = 10 } = req.query;
+    
+    // Convert pagination parameters to numbers
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const offset = (pageNum - 1) * limitNum;
     
     // Build where conditions
     const whereConditions = {};
@@ -180,13 +214,26 @@ exports.getAllUsers = async (req, res) => {
       ];
     }
     
+    // Get total count for pagination
+    const count = await User.count({ where: whereConditions });
+    
+    // Get paginated users
     const users = await User.findAll({
       where: whereConditions,
       attributes: ['id', 'name', 'email', 'phone', 'role', 'createdAt'],
-      order: [['createdAt', 'DESC']]
+      order: [['createdAt', 'DESC']],
+      limit: limitNum,
+      offset: offset
     });
     
-    res.json(users);
+    // Return with pagination metadata
+    res.json({
+      total: count,
+      totalPages: Math.ceil(count / limitNum),
+      currentPage: pageNum,
+      limit: limitNum,
+      users: users
+    });
   } catch (err) {
     console.error('Error fetching users:', err);
     res.status(500).json({ error: 'Failed to fetch users' });
@@ -368,11 +415,17 @@ exports.deleteUser = async (req, res) => {
 };
 
 /**
- * Get activity logs for admin dashboard
+ * Get activity logs for admin dashboard with pagination
  */
 exports.getActivities = async (req, res) => {
   try {
-    const { filter } = req.query;
+    const { filter, page = 1, limit = 10 } = req.query;
+    
+    // Convert pagination parameters to numbers
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const offset = (pageNum - 1) * limitNum;
+    
     let whereCondition = {};
     
     // Apply filter if specified
@@ -380,12 +433,22 @@ exports.getActivities = async (req, res) => {
       whereCondition.type = filter;
     }
     
-    // Use Activity model to fetch activities
+    // Get total count for pagination
+    const count = await Activity.count({ where: whereCondition });
+    
+    // Use Activity model to fetch activities with pagination
     const activities = await Activity.findAll({
       where: whereCondition,
       order: [['createdAt', 'DESC']],
-      limit: 20,
-      include: [{ model: User, as: 'user', attributes: ['name'] }]
+      limit: limitNum,
+      offset: offset,
+      include: [
+        {
+          model: User,
+          as: 'activityUser',
+          attributes: ['name']
+        }
+      ]
     });
     
     // Format activities for the frontend
@@ -394,10 +457,17 @@ exports.getActivities = async (req, res) => {
       type: activity.type,
       message: activity.message,
       timestamp: activity.createdAt,
-      user: activity.user ? activity.user.name : 'System'
+      user: activity.activityUser ? activity.activityUser.name : 'System'
     }));
-    
-    res.json(formattedActivities);
+
+    // Return with pagination metadata
+    res.json({
+      total: count,
+      totalPages: Math.ceil(count / limitNum),
+      currentPage: pageNum,
+      limit: limitNum,
+      activities: formattedActivities
+    });
   } catch (err) {
     console.error('Error fetching activities:', err);
     res.status(500).json({ error: 'Failed to fetch activities' });
@@ -442,7 +512,12 @@ exports.getAdminNotifications = async (req, res) => {
     const notifications = await Notification.findAll({
       where: { userId: adminId },
       order: [['createdAt', 'DESC']],
-      limit: 10
+      limit: 10,
+      include: [{
+        model: User,
+        as: 'notificationUser',
+        attributes: ['name']
+      }]
     });
     
     // If no notifications exist, create some initial ones from recent activities
@@ -453,7 +528,12 @@ exports.getAdminNotifications = async (req, res) => {
       const newNotifications = await Notification.findAll({
         where: { userId: adminId },
         order: [['createdAt', 'DESC']],
-        limit: 10
+        limit: 10,
+        include: [{
+          model: User,
+          as: 'notificationUser',
+          attributes: ['name']
+        }]
       });
       
       return res.json(newNotifications);
@@ -481,16 +561,55 @@ async function createInitialAdminNotifications(adminId) {
       ]
     });
     
-    // Create notifications from pending reviews
-    const pendingReviews = await Review.findAll({
-      where: { reply: null },
-      limit: 2,
-      order: [['createdAt', 'DESC']],
-      include: [
-        { model: Staff, attributes: ['name'] },
-        { model: User, as: 'customer', attributes: ['name'] }
-      ]
-    });
+    // Create notifications from pending reviews - we'll handle model inclusion carefully
+    let pendingReviews = [];
+    try {
+      // First try using just userId to avoid association issues
+      pendingReviews = await Review.findAll({
+        where: { reply: null },
+        limit: 2,
+        order: [['createdAt', 'DESC']],
+        attributes: ['id', 'userId', 'staffId', 'rating', 'comment', 'createdAt']
+      });
+      
+      // Separately fetch staff and user data
+      if (pendingReviews.length > 0) {
+        const staffIds = pendingReviews.map(review => review.staffId);
+        const userIds = pendingReviews.map(review => review.userId);
+        
+        const staffMembers = await Staff.findAll({
+          where: { id: { [Op.in]: staffIds } },
+          attributes: ['id', 'name']
+        });
+        
+        const reviewUsers = await User.findAll({
+          where: { id: { [Op.in]: userIds } },
+          attributes: ['id', 'name']
+        });
+        
+        // Create lookup maps
+        const staffMap = {};
+        staffMembers.forEach(staff => {
+          staffMap[staff.id] = staff.name;
+        });
+        
+        const userMap = {};
+        reviewUsers.forEach(user => {
+          userMap[user.id] = user.name;
+        });
+        
+        // Add the names to the review objects
+        pendingReviews = pendingReviews.map(review => {
+          const plainReview = review.get({ plain: true });
+          plainReview.staffName = staffMap[review.staffId] || 'Unknown Staff';
+          plainReview.userName = userMap[review.userId] || 'Unknown User';
+          return plainReview;
+        });
+      }
+    } catch (err) {
+      console.error('Error fetching reviews:', err);
+      // Continue with empty array if there's an error
+    }
     
     // Create booking notifications
     for (let i = 0; i < recentBookings.length; i++) {
@@ -510,7 +629,7 @@ async function createInitialAdminNotifications(adminId) {
       await Notification.create({
         userId: adminId,
         type: 'review',
-        message: `New ${review.rating}-star review for ${review.Staff.name} from ${review.customer.name}`,
+        message: `New ${review.rating}-star review for ${review.staffName} from ${review.userName}`,
         read: false,
         entityId: review.id,
         entityType: 'Review'
@@ -559,16 +678,139 @@ exports.markNotificationRead = async (req, res) => {
  */
 exports.markAllNotificationsRead = async (req, res) => {
   try {
-    // Update all notifications for this user
+    const adminId = req.user.id;
+    
     await Notification.update(
       { read: true },
-      { where: { userId: req.user.id } }
+      { where: { userId: adminId } }
     );
     
-    res.json({ success: true, message: 'All notifications marked as read' });
+    res.json({ message: 'All notifications marked as read' });
   } catch (err) {
-    console.error('Error marking all notifications as read:', err);
-    res.status(500).json({ error: 'Failed to update notifications' });
+    console.error('Error marking notifications as read:', err);
+    res.status(500).json({ error: 'Failed to mark notifications as read' });
   }
 };
 
+/**
+ * Complete a booking
+ */
+exports.completeBooking = async (req, res) => {
+  try {
+    const bookingId = req.params.id;
+    
+    // Find the booking
+    const booking = await Booking.findByPk(bookingId);
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+    
+    // Update status to completed
+    booking.status = 'completed';
+    await booking.save();
+    
+    // Log activity
+    await Activity.create({
+      userId: req.user.id,
+      type: 'booking',
+      action: 'complete',
+      message: `Marked booking #${bookingId} as completed`,
+      entityId: bookingId,
+      entityType: 'Booking'
+    });
+    
+    res.json({ message: 'Booking marked as completed', booking });
+  } catch (err) {
+    console.error('Error completing booking:', err);
+    res.status(500).json({ error: 'Failed to complete booking' });
+  }
+};
+
+/**
+ * Cancel a booking
+ */
+exports.cancelBooking = async (req, res) => {
+  try {
+    const bookingId = req.params.id;
+    
+    // Find the booking
+    const booking = await Booking.findByPk(bookingId);
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+    
+    // Update status to cancelled
+    booking.status = 'cancelled';
+    await booking.save();
+    
+    // Log activity
+    await Activity.create({
+      userId: req.user.id,
+      type: 'booking',
+      action: 'cancel',
+      message: `Cancelled booking #${bookingId}`,
+      entityId: bookingId,
+      entityType: 'Booking'
+    });
+    
+    res.json({ message: 'Booking cancelled successfully', booking });
+  } catch (err) {
+    console.error('Error cancelling booking:', err);
+    res.status(500).json({ error: 'Failed to cancel booking' });
+  }
+};
+
+/**
+ * Reschedule a booking
+ */
+exports.rescheduleBooking = async (req, res) => {
+  try {
+    const bookingId = req.params.id;
+    const { date, time } = req.body;
+    
+    // Validate input
+    if (!date || !time) {
+      return res.status(400).json({ error: 'Date and time are required' });
+    }
+    
+    // Find the booking
+    const booking = await Booking.findByPk(bookingId);
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+    
+    // Save previous date/time for activity log
+    const previousDate = booking.date;
+    const previousTime = booking.time;
+    
+    // Update booking
+    booking.date = date;
+    booking.time = time;
+    await booking.save();
+    
+    // Log activity
+    await Activity.create({
+      userId: req.user.id,
+      type: 'booking',
+      action: 'reschedule',
+      message: `Rescheduled booking #${bookingId} from ${previousDate} ${previousTime} to ${date} ${time}`,
+      entityId: bookingId,
+      entityType: 'Booking'
+    });
+    
+    // Create notification for the customer
+    const customerNotification = await Notification.create({
+      userId: booking.userId,
+      type: 'booking',
+      message: `Your appointment has been rescheduled to ${date} at ${time}`,
+      read: false,
+      entityId: bookingId,
+      entityType: 'Booking'
+    });
+    
+    res.json({ message: 'Booking rescheduled successfully', booking });
+  } catch (err) {
+    console.error('Error rescheduling booking:', err);
+    res.status(500).json({ error: 'Failed to reschedule booking' });
+  }
+};

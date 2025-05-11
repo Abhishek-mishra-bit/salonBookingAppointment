@@ -29,12 +29,17 @@ async function fetchUserAppointments(page = 1) {
       `;
       
       // Make sure to include pagination parameters in the API call
-      const res = await axios.get(`/api/booking/user?page=${page}&limit=${APPOINTMENTS_PER_PAGE}`);
+      const res = await axios.get(`/api/booking/user?page=${page}&limit=${APPOINTMENTS_PER_PAGE}`, {
+        withCredentials: true
+      });
       
+      // Parse response data using our standardized format
+      const data = res.data;
+      console.log('Appointment data received:', data);
       
-      // Handle different API response structures
-      const appointments = res.data.data || res.data.rows || res.data.appointments || res.data;
-      const totalCount = res.data.total || res.data.count || res.data.totalCount || (appointments ? appointments.length : 0);
+      // Handle the standardized response format from the updated controller
+      const appointments = data.appointments || [];
+      const totalCount = data.totalCount || 0;
       
       if (!appointments || appointments.length === 0) {
         tableBody.innerHTML = `

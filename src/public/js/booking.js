@@ -2,6 +2,54 @@
 
 const baseUrl = window.location.origin;
 
+// SweetAlert2 helper functions
+function showToast(title, icon = 'success') {
+  const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    customClass: {
+      popup: 'colored-toast'
+    },
+    didOpen: (toast) => {
+      toast.addEventListener('mouseenter', Swal.stopTimer)
+      toast.addEventListener('mouseleave', Swal.resumeTimer)
+    }
+  });
+  
+  Toast.fire({
+    icon: icon,
+    title: title
+  });
+}
+
+function showError(title, text = '') {
+  Swal.fire({
+    title: title,
+    text: text,
+    icon: 'error',
+    confirmButtonColor: '#8a6d62',
+    confirmButtonText: 'OK'
+  });
+}
+
+async function confirmAction(title, text, icon = 'warning') {
+  const result = await Swal.fire({
+    title: title,
+    text: text,
+    icon: icon,
+    showCancelButton: true,
+    confirmButtonColor: '#9aab89',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Yes',
+    cancelButtonText: 'No'
+  });
+  
+  return result.isConfirmed;
+}
+
 // Elements
 const serviceSelect = document.getElementById("serviceSelect");
 const staffSelect = document.getElementById("staffSelect");
@@ -87,13 +135,29 @@ async function fetchUserBookings(page = 1) {
     try {
         showLoader();
         const res = await axios.get(`/api/booking/user?page=${page}&limit=${APPOINTMENTS_PER_PAGE}`, {
-            
+            withCredentials: true
         });
         
-        allAppointments = res.data;
-        console.log("allAppointments", res.data);        
-        totalAppointments = res.data.length;
-        currentPage = page;
+        // Handle the paginated response format
+        const data = res.data;
+        
+        // Check if the response has the expected structure
+        if (data.appointments && data.totalCount !== undefined) {
+            allAppointments = data.appointments;
+            totalAppointments = data.totalCount;
+            currentPage = page;
+            
+            console.log("Appointments fetched:", {
+                total: totalAppointments,
+                current: allAppointments.length,
+                page: currentPage
+            });
+        } else {
+            // Fallback to old format if needed
+            allAppointments = data;
+            totalAppointments = data.length;
+            currentPage = page;
+        }
         
         renderAppointmentsTable();
         renderPaginationControls();
@@ -520,7 +584,12 @@ if (payNowBtn) {
         }, {
           
         });
-        alert("✅ Payment successful!");
+        Swal.fire({
+          title: 'Payment Successful!',
+          text: 'Your appointment has been confirmed.',
+          icon: 'success',
+          confirmButtonColor: '#9aab89'
+        });
         payNowBtn.style.display = "none";
       },
       theme: { color: "#0d6efd" }
@@ -530,7 +599,7 @@ if (payNowBtn) {
     rzp.open();
   } catch (err) {
     console.error("Payment initiation error", err);
-    alert("Error initiating payment");
+    showError("Payment Error", "There was an error initiating payment. Please try again.");
   }
 });
 };

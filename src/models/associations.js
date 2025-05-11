@@ -35,10 +35,10 @@ Payment.belongsTo(User, { foreignKey: 'userId' });
 Payment.belongsTo(Booking, { foreignKey: 'bookingId' });
 
 // Activity Associations
-Activity.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+Activity.belongsTo(User, { foreignKey: 'userId', as: 'activityUser' });
 
 // Notification Associations
-Notification.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+Notification.belongsTo(User, { foreignKey: 'userId', as: 'notificationUser' });
 User.hasMany(Notification, { foreignKey: 'userId' });
 
 module.exports = {
