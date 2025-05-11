@@ -29,18 +29,7 @@
     
     <div class="collapse navbar-collapse" id="navbarNav">
       <div class="d-flex flex-column flex-lg-row gap-3 ms-lg-auto">
-        <a href="/api/services/page" class="btn nav-btn btn-primary">
-          <i class="fas fa-concierge-bell me-2"></i>Services
-        </a>
-        <a href="/api/staff/page" class="btn nav-btn btn-warning">
-          <i class="fas fa-user-tie me-2"></i>Staff
-        </a>
-        <a href="/api/admin/page" class="btn nav-btn btn-info">
-          <i class="fas fa-calendar-check me-2"></i>Bookings
-        </a>
-        <button class="btn nav-btn btn-outline-light" id="logoutBtn" onclick="logout()">
-          <i class="fas fa-sign-out-alt me-2"></i>Logout
-        </button>
+        <!-- Dynamic navigation will be rendered here by shared-nav.js -->
       </div>
     </div>
   </div>
@@ -53,15 +42,56 @@
     <p class="welcome-text">Manage salon services, staff, and client appointments.</p>
   </div>
   
+  <!-- Business Analytics Cards -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card bg-primary text-white">
+        <div class="card-body text-center">
+          <h6 class="card-subtitle mb-2">Total Bookings</h6>
+          <h2 class="card-title mb-0" id="totalBookings">--</h2>
+          <div class="mt-2 small"><span id="bookingsTrend"></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card bg-success text-white">
+        <div class="card-body text-center">
+          <h6 class="card-subtitle mb-2">Revenue</h6>
+          <h2 class="card-title mb-0" id="totalRevenue">--</h2>
+          <div class="mt-2 small"><span id="revenueTrend"></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card bg-warning text-dark">
+        <div class="card-body text-center">
+          <h6 class="card-subtitle mb-2">Active Staff</h6>
+          <h2 class="card-title mb-0" id="activeStaff">--</h2>
+          <div class="mt-2 small">available today</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card bg-info text-white">
+        <div class="card-body text-center">
+          <h6 class="card-subtitle mb-2">Customers</h6>
+          <h2 class="card-title mb-0" id="totalCustomers">--</h2>
+          <div class="mt-2 small"><span id="newCustomers"></span> new this week</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Main Feature Cards -->
   <div class="row g-4">
-    <div class="col-md-4">
+    <div class="col-md-3">
       <div class="card shadow-sm">
         <div class="card-body text-center">
           <div class="card-icon">
             <i class="fas fa-concierge-bell"></i>
           </div>
           <h5 class="card-title">Service Management</h5>
-          <p class="card-text">Add, update, or remove salon services and pricing.</p>
+          <p class="card-text">Add, update, or remove salon services.</p>
           <a href="/api/services/page" class="btn btn-primary">
             <i class="fas fa-concierge-bell me-2"></i>Manage Services
           </a>
@@ -69,14 +99,14 @@
       </div>
     </div>
     
-    <div class="col-md-4">
+    <div class="col-md-3">
       <div class="card shadow-sm">
         <div class="card-body text-center">
           <div class="card-icon">
             <i class="fas fa-user-tie"></i>
           </div>
           <h5 class="card-title">Staff Management</h5>
-          <p class="card-text">Manage your talented stylists and staff members.</p>
+          <p class="card-text">Manage your salon staff members.</p>
           <a href="/api/staff/page" class="btn btn-warning">
             <i class="fas fa-user-tie me-2"></i>Manage Staff
           </a>
@@ -84,17 +114,72 @@
       </div>
     </div>
     
-    <div class="col-md-4">
+    <div class="col-md-3">
       <div class="card shadow-sm">
         <div class="card-body text-center">
           <div class="card-icon">
             <i class="fas fa-calendar-check"></i>
           </div>
           <h5 class="card-title">Appointments</h5>
-          <p class="card-text">View and manage all client bookings and schedules.</p>
+          <p class="card-text">View and manage all bookings.</p>
           <a href="/api/admin/page" class="btn btn-info">
             <i class="fas fa-calendar-check me-2"></i>View Bookings
           </a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3">
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <div class="card-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <h5 class="card-title">User Management</h5>
+          <p class="card-text">Manage customer accounts.</p>
+          <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#usersModal">
+            <i class="fas fa-users me-2"></i>Manage Users
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Recent Activity & Today's Schedule -->
+  <div class="row mt-5">
+    <div class="col-lg-7">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center bg-white">
+          <h5 class="mb-0">Recent Activity</h5>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+              Filter
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#" data-filter="all">All Activity</a></li>
+              <li><a class="dropdown-item" href="#" data-filter="bookings">Bookings</a></li>
+              <li><a class="dropdown-item" href="#" data-filter="users">Users</a></li>
+              <li><a class="dropdown-item" href="#" data-filter="payments">Payments</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <ul class="list-group list-group-flush" id="activityList">
+            <li class="list-group-item text-center py-5">Loading activity...</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-5">
+      <div class="card">
+        <div class="card-header bg-white">
+          <h5 class="mb-0">Today's Schedule</h5>
+        </div>
+        <div class="card-body p-0">
+          <ul class="list-group list-group-flush" id="todaySchedule">
+            <li class="list-group-item text-center py-5">Loading schedule...</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -118,34 +203,125 @@
   </div>
 </footer>
 
+<!-- User Management Modal -->
+<div class="modal fade" id="usersModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">User Management</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Search and filter controls -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <input type="text" class="form-control" placeholder="Search users..." id="userSearchInput">
+          </div>
+          <div class="col-md-3">
+            <select class="form-select" id="userRoleFilter">
+              <option value="">All Roles</option>
+              <option value="customer">Customers</option>
+              <option value="staff">Staff</option>
+              <option value="admin">Admins</option>
+            </select>
+          </div>
+          <div class="col-md-3 text-end">
+            <button class="btn btn-primary" id="addUserBtn">
+              <i class="fas fa-plus me-2"></i>Add User
+            </button>
+          </div>
+        </div>
+
+        <!-- Users table -->
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Role</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <!-- Users will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+        <nav>
+          <ul class="pagination justify-content-center" id="usersPagination"></ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Profile Modal -->
+<div class="modal fade" id="adminProfileModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Admin Profile</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="adminProfileForm">
+          <div class="mb-3">
+            <label for="adminProfileName" class="form-label">Name</label>
+            <input type="text" class="form-control" id="adminProfileName">
+          </div>
+          <div class="mb-3">
+            <label for="adminProfileEmail" class="form-label">Email</label>
+            <input type="email" class="form-control" id="adminProfileEmail">
+          </div>
+          <div class="mb-3">
+            <label for="adminProfilePhone" class="form-label">Phone</label>
+            <input type="tel" class="form-control" id="adminProfilePhone">
+          </div>
+          <div class="mb-3">
+            <label for="adminProfilePassword" class="form-label">New Password (leave blank to keep current)</label>
+            <input type="password" class="form-control" id="adminProfilePassword">
+          </div>
+          <div class="text-end">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Notification Center -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1080">
+  <div class="dropdown">
+    <button class="btn position-relative" type="button" id="adminNotificationBtn" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="fas fa-bell fs-5 text-primary"></i>
+      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge" id="adminNotificationBadge">
+        0
+      </span>
+    </button>
+    <div class="dropdown-menu dropdown-menu-end p-0 notification-dropdown" aria-labelledby="adminNotificationBtn">
+      <div class="notification-header p-3 bg-light d-flex justify-content-between align-items-center">
+        <h6 class="m-0">Notifications</h6>
+        <button class="btn btn-sm text-muted" id="markAllReadBtn">Mark all read</button>
+      </div>
+      <div class="notification-body" id="adminNotificationList">
+        <!-- Notifications will be loaded here -->
+        <div class="text-center p-3">
+          <small>No new notifications</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script>
-  // Fetch admin name
-  document.addEventListener('DOMContentLoaded', function() {   
-    
-    axios.get('/api/dashboard/auth/profile', {
-      withCredentials: true
-    })
-    .then(res => {
-      document.getElementById('adminName').textContent = res.data.name;
-    })
-    .catch(err => {
-      console.error('Error fetching profile:', err);
-      window.location.href = "/api/auth/login";
-    });
-  });
-
-  function logout() {
-  axios.post("/api/auth/logout", {}, { withCredentials: true })
-    .then(() => {
-      window.location.href = "/api/auth/login";
-    })
-    .catch(err => {
-      console.error("Logout failed", err);
-    });
-  }
-</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/js/shared-nav.js"></script>
+<script src="/js/admin-dashboard.js"></script>
 </body>
 </html> 

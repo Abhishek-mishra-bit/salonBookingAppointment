@@ -27,15 +27,35 @@ const Staff = sequelize.define('Staff', {
   specialization: {
     type: DataTypes.STRING,
     allowNull: true
+  },
+  isActive: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+    allowNull: false
+  },
+  workingDays: {
+    type: DataTypes.STRING, // Stored as JSON string e.g. "[0,1,2,3,4]" for Mon-Fri
+    allowNull: true,
+    get() {
+      const value = this.getDataValue('workingDays');
+      return value ? JSON.parse(value) : [];
+    },
+    set(value) {
+      this.setDataValue('workingDays', JSON.stringify(value));
+    }
+  },
+  workHoursStart: {
+    type: DataTypes.STRING, // Store as "09:00"
+    allowNull: true
+  },
+  workHoursEnd: {
+    type: DataTypes.STRING, // Store as "17:00"
+    allowNull: true
   }
 }, {
   tableName: 'staffs',
   timestamps: true
 });
 
-// Export the model first
+// Just export the model - associations are handled in associations.js
 module.exports = Staff;
-
-// Then set up associations
-const Review = require("./reviewModel");
-Staff.hasMany(Review, { foreignKey: 'staffId'});

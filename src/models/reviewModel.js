@@ -35,9 +35,5 @@ const Review = sequelize.define('Review', {
   }
 });
 
-// Export the model first
+// Just export the model - associations are handled in associations.js
 module.exports = Review;
-
-// Then set up associations
-const Staff = require("./staffModel");
-Review.belongsTo(Staff, { foreignKey: 'staffId' });

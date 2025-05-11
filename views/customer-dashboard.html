@@ -28,18 +28,7 @@
     
     <div class="collapse navbar-collapse" id="navbarNav">
       <div class="d-flex flex-column flex-lg-row gap-3 ms-lg-auto">
-        <a href="/api/booking/page" class="btn nav-btn btn-success">
-          <i class="fas fa-calendar-plus me-2"></i>Book Appointment
-        </a>
-        <a  class="btn btn-primary" id="viewAppointmentsBtn">
-          <i class="fas fa-calendar-check me-2"></i>My Appointments
-        </a>
-        <a href="/api/reviews/submit" class="btn nav-btn btn-warning">
-          <i class="fas fa-star me-2"></i>Review Staff
-        </a>
-        <button class="btn nav-btn btn-outline-danger" id="logoutBtn" onclick="logout()">
-          <i class="fas fa-sign-out-alt me-2"></i>Logout
-        </button>
+        <!-- Dynamic navigation will be rendered here by shared-nav.js -->
       </div>
     </div>
   </div>
@@ -53,7 +42,7 @@
   </div>
   
   <div class="row g-4">
-    <div class="col-md-4">
+    <div class="col-md-3">
       <div class="card shadow-sm">
         <div class="card-body text-center">
           <div class="card-icon">
@@ -68,7 +57,7 @@
       </div>
     </div>
     
-    <div class="col-md-4">
+    <div class="col-md-3">
       <div class="card shadow-sm">
         <div class="card-body text-center">
           <div class="card-icon">
@@ -76,15 +65,14 @@
           </div>
           <h5 class="card-title">My Appointments</h5>
           <p class="card-text">View and manage your upcoming appointments.</p>
-          <!-- Change this in line 78 -->
-            <a class="btn btn-primary" id="viewAppointmentsCardBtn">
-              <i class="fas fa-calendar-check me-2"></i>View Appointments
-            </a>          
+          <a class="btn btn-primary" id="viewAppointmentsCardBtn">
+            <i class="fas fa-calendar-check me-2"></i>View Appointments
+          </a>          
         </div>
       </div>
     </div>
     
-    <div class="col-md-4">
+    <div class="col-md-3">
       <div class="card shadow-sm">
         <div class="card-body text-center">
           <div class="card-icon">
@@ -95,6 +83,21 @@
           <a href="/api/reviews/submit" class="btn btn-warning">
             <i class="fas fa-star me-2"></i>Review Staff
           </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <div class="card-icon">
+            <i class="fas fa-user-circle"></i>
+          </div>
+          <h5 class="card-title">My Profile</h5>
+          <p class="card-text">View and update your personal information.</p>
+          <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#profileModal">
+            <i class="fas fa-user-edit me-2"></i>Edit Profile
+          </button>
         </div>
       </div>
     </div>
@@ -127,23 +130,115 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Service</th>
-              <th>Staff</th>
-              <th>Date & Time</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-            <tbody id="appointmentsTable">
-              <!-- Dynamic content will be loaded here -->
-            </tbody>
-        </table>
-        <nav>
-          <ul class="pagination justify-content-center" id="paginationControls"></ul>
-        </nav>
+        <!-- Tabs for appointment types -->
+        <ul class="nav nav-tabs mb-3" id="appointmentsTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming" type="button" role="tab">Upcoming</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="past-tab" data-bs-toggle="tab" data-bs-target="#past" type="button" role="tab">Past Appointments</button>
+          </li>
+        </ul>
+        
+        <!-- Tab content -->
+        <div class="tab-content" id="appointmentsTabContent">
+          <!-- Upcoming appointments tab -->
+          <div class="tab-pane fade show active" id="upcoming" role="tabpanel">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Service</th>
+                  <th>Staff</th>
+                  <th>Date & Time</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="appointmentsTable">
+                <!-- Dynamic content will be loaded here -->
+              </tbody>
+            </table>
+            <nav>
+              <ul class="pagination justify-content-center" id="paginationControls"></ul>
+            </nav>
+          </div>
+          
+          <!-- Past appointments tab -->
+          <div class="tab-pane fade" id="past" role="tabpanel">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Service</th>
+                  <th>Staff</th>
+                  <th>Date & Time</th>
+                  <th>Status</th>
+                  <th>Review</th>
+                </tr>
+              </thead>
+              <tbody id="pastAppointmentsTable">
+                <!-- Dynamic content will be loaded here -->
+              </tbody>
+            </table>
+            <nav>
+              <ul class="pagination justify-content-center" id="pastPaginationControls"></ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Profile Modal -->
+<div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Profile</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="profileForm">
+          <div class="mb-3">
+            <label for="profileName" class="form-label">Name</label>
+            <input type="text" class="form-control" id="profileName">
+          </div>
+          <div class="mb-3">
+            <label for="profileEmail" class="form-label">Email</label>
+            <input type="email" class="form-control" id="profileEmail">
+          </div>
+          <div class="mb-3">
+            <label for="profilePhone" class="form-label">Phone</label>
+            <input type="tel" class="form-control" id="profilePhone">
+          </div>
+          <div class="text-end">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Notification Center -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1080">
+  <div class="dropdown">
+    <button class="btn position-relative" type="button" id="notificationBtn" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="fas fa-bell fs-5 text-primary"></i>
+      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge" id="notificationBadge">
+        0
+      </span>
+    </button>
+    <div class="dropdown-menu dropdown-menu-end p-0 notification-dropdown" aria-labelledby="notificationBtn">
+      <div class="notification-header p-3 bg-light">
+        <h6 class="m-0">Notifications</h6>
+      </div>
+      <div class="notification-body" id="notificationList">
+        <!-- Notifications will be loaded here -->
+        <div class="text-center p-3">
+          <small>No new notifications</small>
+        </div>
       </div>
     </div>
   </div>
@@ -152,6 +247,7 @@
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="/js/shared-nav.js"></script>
 <script src="/js/appointments.js"></script>
 <script src="/js/dashboard.js"></script>
 

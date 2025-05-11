@@ -4,6 +4,13 @@ const path = require("path");
 const Service = require("../models/serviceModel");
 const Staff = require("../models/staffModel");
 const User = require("../models/userModel");
+const Payment = require("../models/paymentModel");
+const Review = require("../models/reviewModel");
+const Activity = require("../models/activityModel");
+const Notification = require("../models/notificationModel");
+const sequelize = require("../utils/db");
+const { Op } = require("sequelize");
+const bcrypt = require("bcryptjs");
 
 exports.getAllBookingPage = async(req, res)=>{
   res.sendFile(path.join(rootDir, "views", "admin-appointments.html"));  
@@ -22,6 +29,546 @@ exports.getAllBookings = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to fetch bookings" });
+  }
+};
+
+/**
+ * Get analytics data for admin dashboard
+ */
+exports.getAnalytics = async (req, res) => {
+  try {
+    // Get current date and past periods for comparison
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+    
+    // Calculate date from 7 days ago for weekly comparison
+    const lastWeekDate = new Date(now);
+    lastWeekDate.setDate(lastWeekDate.getDate() - 7);
+    const lastWeek = lastWeekDate.toISOString().split('T')[0];
+    
+    // Current week start (Sunday)
+    const currentWeekStart = new Date(now);
+    currentWeekStart.setDate(currentWeekStart.getDate() - now.getDay());
+    currentWeekStart.setHours(0, 0, 0, 0);
+    
+    // Last week for comparison
+    const previousWeekStart = new Date(currentWeekStart);
+    previousWeekStart.setDate(previousWeekStart.getDate() - 7);
+    
+    // Total bookings count
+    const totalBookings = await Booking.count();
+    
+    // Bookings this week
+    const bookingsThisWeek = await Booking.count({
+      where: {
+        createdAt: { [Op.gte]: currentWeekStart }
+      }
+    });
+    
+    // Bookings last week
+    const bookingsLastWeek = await Booking.count({
+      where: {
+        createdAt: {
+          [Op.gte]: previousWeekStart,
+          [Op.lt]: currentWeekStart
+        }
+      }
+    });
+    
+    // Calculate booking trend percentage
+    let bookingsTrend = 0;
+    if (bookingsLastWeek > 0) {
+      bookingsTrend = Math.round(((bookingsThisWeek - bookingsLastWeek) / bookingsLastWeek) * 100);
+    }
+    
+    // Total revenue
+    const revenueResult = await Payment.findOne({
+      attributes: [[sequelize.fn('SUM', sequelize.col('amount')), 'total']],
+      where: {
+        status: 'completed'
+      }
+    });
+    const totalRevenue = revenueResult.getDataValue('total') || 0;
+    
+    // Revenue this week
+    const revenueThisWeekResult = await Payment.findOne({
+      attributes: [[sequelize.fn('SUM', sequelize.col('amount')), 'total']],
+      where: {
+        status: 'completed',
+        createdAt: { [Op.gte]: currentWeekStart }
+      }
+    });
+    const revenueThisWeek = revenueThisWeekResult.getDataValue('total') || 0;
+    
+    // Revenue last week
+    const revenueLastWeekResult = await Payment.findOne({
+      attributes: [[sequelize.fn('SUM', sequelize.col('amount')), 'total']],
+      where: {
+        status: 'completed',
+        createdAt: {
+          [Op.gte]: previousWeekStart,
+          [Op.lt]: currentWeekStart
+        }
+      }
+    });
+    const revenueLastWeek = revenueLastWeekResult.getDataValue('total') || 0;
+    
+    // Calculate revenue trend percentage
+    let revenueTrend = 0;
+    if (revenueLastWeek > 0) {
+      revenueTrend = Math.round(((revenueThisWeek - revenueLastWeek) / revenueLastWeek) * 100);
+    }
+    
+    // Active staff count - now using the isActive column
+    const activeStaff = await Staff.count({
+      where: {
+        isActive: true
+      }
+    });
+    
+    // Total customers count
+    const totalCustomers = await User.count({
+      where: {
+        role: 'customer'
+      }
+    });
+    
+    // New customers this week
+    const newCustomers = await User.count({
+      where: {
+        role: 'customer',
+        createdAt: { [Op.gte]: currentWeekStart }
+      }
+    });
+    
+    res.json({
+      totalBookings,
+      bookingsTrend,
+      totalRevenue,
+      revenueTrend,
+      activeStaff,
+      totalCustomers,
+      newCustomers
+    });
+  } catch (err) {
+    console.error('Error fetching analytics:', err);
+    res.status(500).json({ error: 'Failed to fetch analytics data' });
+  }
+};
+
+/**
+ * Get all users for admin management
+ */
+exports.getAllUsers = async (req, res) => {
+  try {
+    const { search, role } = req.query;
+    
+    // Build where conditions
+    const whereConditions = {};
+    
+    // Add role filter if specified
+    if (role) {
+      whereConditions.role = role;
+    }
+    
+    // Add search filter if specified
+    if (search) {
+      whereConditions[Op.or] = [
+        { name: { [Op.like]: `%${search}%` } },
+        { email: { [Op.like]: `%${search}%` } },
+        { phone: { [Op.like]: `%${search}%` } }
+      ];
+    }
+    
+    const users = await User.findAll({
+      where: whereConditions,
+      attributes: ['id', 'name', 'email', 'phone', 'role', 'createdAt'],
+      order: [['createdAt', 'DESC']]
+    });
+    
+    res.json(users);
+  } catch (err) {
+    console.error('Error fetching users:', err);
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+};
+
+/**
+ * Create a new user
+ */
+exports.createUser = async (req, res) => {
+  try {
+    const { name, email, phone, password, role } = req.body;
+    
+    // Validate required fields
+    if (!name || !email || !password || !role) {
+      return res.status(400).json({ error: 'Name, email, password and role are required' });
+    }
+    
+    // Check if email already exists
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Email already in use' });
+    }
+    
+    // Check if phone already exists (if provided)
+    if (phone) {
+      const existingPhone = await User.findOne({ where: { phone } });
+      if (existingPhone) {
+        return res.status(400).json({ error: 'Phone number already in use' });
+      }
+    }
+    
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Create user
+    const newUser = await User.create({
+      name,
+      email,
+      phone,
+      password: hashedPassword,
+      role
+    });
+    
+    // Record this activity using Activity model
+    await Activity.create({
+      userId: req.user.id,
+      type: 'user',
+      action: 'create',
+      message: `Created new ${role} account for ${name}`,
+      entityId: newUser.id,
+      entityType: 'User'
+    });
+    
+    res.status(201).json({
+      id: newUser.id,
+      name: newUser.name,
+      email: newUser.email,
+      phone: newUser.phone,
+      role: newUser.role
+    });
+  } catch (err) {
+    console.error('Error creating user:', err);
+    res.status(500).json({ error: 'Failed to create user' });
+  }
+};
+
+/**
+ * Update a user
+ */
+exports.updateUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { name, email, phone, password, role } = req.body;
+    
+    // Find user
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Check if email is changed and already exists
+    if (email && email !== user.email) {
+      const existingEmail = await User.findOne({ where: { email } });
+      if (existingEmail) {
+        return res.status(400).json({ error: 'Email already in use' });
+      }
+      user.email = email;
+    }
+    
+    // Check if phone is changed and already exists
+    if (phone && phone !== user.phone) {
+      const existingPhone = await User.findOne({ where: { phone } });
+      if (existingPhone) {
+        return res.status(400).json({ error: 'Phone number already in use' });
+      }
+      user.phone = phone;
+    }
+    
+    // Update user fields
+    if (name) user.name = name;
+    if (role) user.role = role;
+    
+    // Update password if provided
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      user.password = hashedPassword;
+    }
+    
+    await user.save();
+    
+    // Record this activity using Activity model
+    await Activity.create({
+      userId: req.user.id,
+      type: 'user',
+      action: 'update',
+      message: `Updated user account for ${user.name}`,
+      entityId: user.id,
+      entityType: 'User'
+    });
+    
+    res.json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      role: user.role
+    });
+  } catch (err) {
+    console.error('Error updating user:', err);
+    res.status(500).json({ error: 'Failed to update user' });
+  }
+};
+
+/**
+ * Delete a user
+ */
+exports.deleteUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    
+    // Prevent admin from deleting themselves
+    if (userId == req.user.id) {
+      return res.status(400).json({ error: 'You cannot delete your own account' });
+    }
+    
+    // Find user
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Check if user has bookings
+    const userBookings = await Booking.count({ where: { userId } });
+    if (userBookings > 0) {
+      return res.status(400).json({
+        error: 'Cannot delete user with existing bookings. Consider deactivating instead.'
+      });
+    }
+    
+    // Record this activity using Activity model
+    await Activity.create({
+      userId: req.user.id,
+      type: 'user',
+      action: 'delete',
+      message: `Deleted user account for ${user.name}`,
+      entityId: user.id,
+      entityType: 'User'
+    });
+    
+    // Delete user
+    await user.destroy();
+    
+    res.json({ message: 'User deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting user:', err);
+    res.status(500).json({ error: 'Failed to delete user' });
+  }
+};
+
+/**
+ * Get activity logs for admin dashboard
+ */
+exports.getActivities = async (req, res) => {
+  try {
+    const { filter } = req.query;
+    let whereCondition = {};
+    
+    // Apply filter if specified
+    if (filter && filter !== 'all') {
+      whereCondition.type = filter;
+    }
+    
+    // Use Activity model to fetch activities
+    const activities = await Activity.findAll({
+      where: whereCondition,
+      order: [['createdAt', 'DESC']],
+      limit: 20,
+      include: [{ model: User, as: 'user', attributes: ['name'] }]
+    });
+    
+    // Format activities for the frontend
+    const formattedActivities = activities.map(activity => ({
+      id: activity.id,
+      type: activity.type,
+      message: activity.message,
+      timestamp: activity.createdAt,
+      user: activity.user ? activity.user.name : 'System'
+    }));
+    
+    res.json(formattedActivities);
+  } catch (err) {
+    console.error('Error fetching activities:', err);
+    res.status(500).json({ error: 'Failed to fetch activities' });
+  }
+};
+
+/**
+ * Get today's schedule for admin dashboard
+ */
+exports.getTodaySchedule = async (req, res) => {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    
+    const todayBookings = await Booking.findAll({
+      where: {
+        date: today
+      },
+      include: [
+        { model: Service, attributes: ['name'] },
+        { model: Staff, attributes: ['name'] },
+        { model: User, attributes: ['name'] }
+      ],
+      order: [['time', 'ASC']]
+    });
+    
+    res.json(todayBookings);
+  } catch (err) {
+    console.error('Error fetching today\'s schedule:', err);
+    res.status(500).json({ error: 'Failed to fetch today\'s schedule' });
+  }
+};
+
+/**
+ * Get admin notifications
+ */
+exports.getAdminNotifications = async (req, res) => {
+  try {
+    // Get admin user ID
+    const adminId = req.user.id;
+    
+    // Find or create admin notifications
+    const notifications = await Notification.findAll({
+      where: { userId: adminId },
+      order: [['createdAt', 'DESC']],
+      limit: 10
+    });
+    
+    // If no notifications exist, create some initial ones from recent activities
+    if (notifications.length === 0) {
+      await createInitialAdminNotifications(adminId);
+      
+      // Fetch the newly created notifications
+      const newNotifications = await Notification.findAll({
+        where: { userId: adminId },
+        order: [['createdAt', 'DESC']],
+        limit: 10
+      });
+      
+      return res.json(newNotifications);
+    }
+    
+    res.json(notifications);
+  } catch (err) {
+    console.error('Error fetching admin notifications:', err);
+    res.status(500).json({ error: 'Failed to fetch notifications' });
+  }
+};
+
+/**
+ * Helper function to create initial admin notifications
+ */
+async function createInitialAdminNotifications(adminId) {
+  try {
+    // Create notifications from recent bookings
+    const recentBookings = await Booking.findAll({
+      limit: 3,
+      order: [['createdAt', 'DESC']],
+      include: [
+        { model: User, attributes: ['name'] },
+        { model: Service, attributes: ['name'] }
+      ]
+    });
+    
+    // Create notifications from pending reviews
+    const pendingReviews = await Review.findAll({
+      where: { reply: null },
+      limit: 2,
+      order: [['createdAt', 'DESC']],
+      include: [
+        { model: Staff, attributes: ['name'] },
+        { model: User, as: 'customer', attributes: ['name'] }
+      ]
+    });
+    
+    // Create booking notifications
+    for (let i = 0; i < recentBookings.length; i++) {
+      const booking = recentBookings[i];
+      await Notification.create({
+        userId: adminId,
+        type: 'booking',
+        message: `New booking for ${booking.Service.name} by ${booking.User.name}`,
+        read: i > 0, // Make only the first one unread
+        entityId: booking.id,
+        entityType: 'Booking'
+      });
+    }
+    
+    // Create review notifications
+    for (const review of pendingReviews) {
+      await Notification.create({
+        userId: adminId,
+        type: 'review',
+        message: `New ${review.rating}-star review for ${review.Staff.name} from ${review.customer.name}`,
+        read: false,
+        entityId: review.id,
+        entityType: 'Review'
+      });
+    }
+    
+    return true;
+  } catch (err) {
+    console.error('Error creating initial notifications:', err);
+    return false;
+  }
+}
+
+/**
+ * Mark a notification as read
+ */
+exports.markNotificationRead = async (req, res) => {
+  try {
+    const notificationId = req.params.id;
+    
+    // Find notification
+    const notification = await Notification.findByPk(notificationId);
+    
+    if (!notification) {
+      return res.status(404).json({ error: 'Notification not found' });
+    }
+    
+    // Make sure this notification belongs to the current user
+    if (notification.userId !== req.user.id) {
+      return res.status(403).json({ error: 'Not authorized' });
+    }
+    
+    // Update notification
+    notification.read = true;
+    await notification.save();
+    
+    res.json({ success: true, message: 'Notification marked as read' });
+  } catch (err) {
+    console.error('Error marking notification as read:', err);
+    res.status(500).json({ error: 'Failed to update notification' });
+  }
+};
+
+/**
+ * Mark all notifications as read
+ */
+exports.markAllNotificationsRead = async (req, res) => {
+  try {
+    // Update all notifications for this user
+    await Notification.update(
+      { read: true },
+      { where: { userId: req.user.id } }
+    );
+    
+    res.json({ success: true, message: 'All notifications marked as read' });
+  } catch (err) {
+    console.error('Error marking all notifications as read:', err);
+    res.status(500).json({ error: 'Failed to update notifications' });
   }
 };
 

@@ -4,6 +4,8 @@ const Staff = require('./staffModel');
 const Booking = require('./bookingModel');
 const Review = require('./reviewModel');
 const Payment = require('./paymentModel');
+const Activity = require('./activityModel');
+const Notification = require('./notificationModel');
 
 // User Associations
 User.hasMany(Booking, { foreignKey: 'userId' });
@@ -24,12 +26,20 @@ Booking.belongsTo(Staff, { foreignKey: 'staffId' });
 Booking.hasOne(Payment, { foreignKey: 'bookingId' });
 
 // Review Associations
-Review.belongsTo(User, { foreignKey: 'userId' });
+Review.belongsTo(User, { foreignKey: 'userId', as: 'customer' });
 Review.belongsTo(Staff, { foreignKey: 'staffId' });
+Staff.hasMany(Review, { foreignKey: 'staffId' });
 
 // Payment Associations
 Payment.belongsTo(User, { foreignKey: 'userId' });
 Payment.belongsTo(Booking, { foreignKey: 'bookingId' });
+
+// Activity Associations
+Activity.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+// Notification Associations
+Notification.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+User.hasMany(Notification, { foreignKey: 'userId' });
 
 module.exports = {
     User,
@@ -37,5 +47,7 @@ module.exports = {
     Staff,
     Booking,
     Review,
-    Payment
+    Payment,
+    Activity,
+    Notification
 };
