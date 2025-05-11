@@ -70,24 +70,43 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
         
       } else if (userRole === 'admin') {
-        // Admin navigation
+        // Determine the current page to highlight active button
+        const currentPath = window.location.pathname;
+        const isDashboardPage = currentPath.includes('/admin/page');
+        const isServicesPage = currentPath.includes('/services/page');
+        const isStaffPage = currentPath.includes('/staff/page');
+        const isBookingsPage = currentPath.includes('/admin/appointments');
+        
+        // Admin navigation with active button indication
         navContainer.innerHTML = `
-          <a href="/api/admin/page" class="btn nav-btn btn-primary">
+          <a href="/api/admin/page" id="adminDashboardBtn" class="btn nav-btn ${isDashboardPage ? 'btn-primary active' : 'btn-outline-primary'}">
             <i class="fas fa-tachometer-alt me-2"></i>Dashboard
           </a>
-          <a href="/api/services/page" class="btn nav-btn btn-info">
+          <a href="/api/services/page" class="btn nav-btn ${isServicesPage ? 'btn-info active' : 'btn-outline-info'}">
             <i class="fas fa-concierge-bell me-2"></i>Services
           </a>
-          <a href="/api/staff/page" class="btn nav-btn btn-warning">
+          <a href="/api/staff/page" class="btn nav-btn ${isStaffPage ? 'btn-warning active' : 'btn-outline-warning'}">
             <i class="fas fa-user-tie me-2"></i>Staff
           </a>
-          <a href="/api/admin/appointments" class="btn nav-btn btn-success">
+          <a href="/api/admin/appointments" class="btn nav-btn ${isBookingsPage ? 'btn-success active' : 'btn-outline-success'}">
             <i class="fas fa-calendar-check me-2"></i>Bookings
           </a>
           <button class="btn nav-btn btn-outline-danger" id="logoutBtn" onclick="logout()">
             <i class="fas fa-sign-out-alt me-2"></i>Logout
           </button>
         `;
+        
+        // Add a direct click handler to dashboard button
+        setTimeout(() => {
+          const adminDashboardBtn = document.getElementById('adminDashboardBtn');
+          if (adminDashboardBtn) {
+            adminDashboardBtn.addEventListener('click', function(e) {
+              e.preventDefault();
+              console.log('Dashboard button clicked - redirecting to /api/admin/page');
+              window.location.href = '/api/admin/page';
+            });
+          }
+        }, 100); // Small delay to ensure DOM is ready
       } else if (userRole === 'staff') {
         // Staff navigation
         navContainer.innerHTML = `

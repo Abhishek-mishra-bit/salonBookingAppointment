@@ -11,9 +11,9 @@ exports.getStaffPage = async (req, res)=>{
 // ➡ Add New Staff
 exports.addStaff = async (req, res) => {
   try {
-    const { name, email, phone, specialization } = req.body;
+    const { name, email, phone, specialization, isActive } = req.body;
 
-    const staff = await Staff.create({ name, email, phone, specialization });
+    const staff = await Staff.create({ name, email, phone, specialization, isActive });
 
     res.status(201).json({ message: "Staff added successfully!", staff });
   } catch (error) {
@@ -63,14 +63,15 @@ exports.getAllStaff = async (req, res) => {
 exports.updateStaff = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, phone, specialization } = req.body;
+    const { name, email, phone, specialization, isActive } = req.body;
 
     const staff = await Staff.findByPk(id);
     if (!staff) {
       return res.status(404).json({ error: "Staff not found" });
     }
 
-    await staff.update({ name, email, phone, specialization });
+    // Update with all fields from request body, including available status
+    await staff.update({ name, email, phone, specialization, isActive });
 
     res.status(200).json({ message: "Staff updated successfully!", staff });
   } catch (error) {
@@ -95,5 +96,29 @@ exports.deleteStaff = async (req, res) => {
   } catch (error) {
     console.error("Error deleting staff:", error);
     res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// ➡ Get Staff by ID
+exports.getStaffById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const staff = await Staff.findByPk(id, {
+      include: [{
+        model: Review,
+        attributes: ['rating', 'comment', 'createdAt'],
+        required: false
+      }]
+    });
+    
+    if (!staff) {
+      return res.status(404).json({ error: "Staff not found" });
+    }
+    
+    res.status(200).json(staff);
+  } catch (error) {
+    console.error("Error fetching staff:", error);
+    res.status(500).json({ error: "Failed to fetch staff details" });
   }
 };

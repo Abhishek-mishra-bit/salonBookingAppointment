@@ -46,10 +46,19 @@ async function confirmAction(title, text, icon = 'warning') {
   return result.isConfirmed;
 }
 
+// Get UI elements safely with fallbacks
 const loader = document.getElementById("loader");
 const staffForm = document.getElementById("staffForm");
-const staffTable = document.getElementById("staffTable").querySelector("tbody");
-const token = localStorage.getItem('token');
+const staffTable = document.getElementById("staffTable")?.querySelector("tbody");
+
+// Helper function to safely show/hide loader
+function showLoader() {
+  if (loader) loader.style.display = "flex";
+}
+
+function hideLoader() {
+  if (loader) loader.style.display = "none";
+}
 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -58,11 +67,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // 🌟 Fetch and display all staff
 async function fetchAllStaff() {
-    const token = localStorage.getItem("token")
-  loader.style.display = "flex";
+  showLoader();
   try {
     const res = await axios.get(`/api/staff`, {
-        headers: { Authorization: token }
+        withCredentials: true
       });
     const staffList = res.data;
 
@@ -74,10 +82,11 @@ async function fetchAllStaff() {
       tr.innerHTML = `
         <td>${staff.name}</td>
         <td>${staff.specialization}</td>
-        <td>${staff.available ? "✅" : "❌"}</td>
-        <td>
-          <button class="btn btn-sm btn-info" onclick="editStaff('${staff.id}')">Edit</button>
-          <button class="btn btn-sm btn-danger ms-2" onclick="deleteStaff('${staff.id}')">Delete</button>
+        <td>${staff.email}</td>
+        <td>${staff.isActive ? "<span class='badge bg-success'>Available</span>" : "<span class='badge bg-danger'>Unavailable</span>"}</td>
+        <td class="text-end">
+          <button class="btn btn-sm btn-primary" onclick="editStaff('${staff.id}')"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-sm btn-danger ms-2" onclick="deleteStaff('${staff.id}')"><i class="fas fa-trash"></i></button>
         </td>
       `;
 
@@ -88,7 +97,7 @@ async function fetchAllStaff() {
     console.error("Error fetching staff:", err);
     showError("Error", "Failed to load staff!");
   }
-  loader.style.display = "none";
+  hideLoader();
 }
 
 // 🌟 Handle form submit (Add or Update)
@@ -102,20 +111,19 @@ staffForm.addEventListener("submit", async (e) => {
   const available = document.getElementById("available").value.trim().toLowerCase() === "true";
 
   const staffData = { name, specialization, email, available };
-  const token = localStorage.getItem('token');
   try {
-    loader.style.display = "flex";
+    showLoader();
 
     if (staffId) {
       // Update
       await axios.put(`/api/staff/${staffId}`, staffData, {
-        headers: { Authorization: token }
+        withCredentials: true
       });
       showToast("Staff updated successfully!");
     } else {
       // Create
       await axios.post(`/api/staff`, staffData, {
-        headers: { Authorization: token }
+        withCredentials: true
       });
       showToast("Staff added successfully!");
     }
@@ -129,14 +137,14 @@ staffForm.addEventListener("submit", async (e) => {
     showError("Error", "Failed to save staff information. Please try again.");
   }
 
-  loader.style.display = "none";
+  hideLoader();
 });
 
 // 🌟 Populate form to edit staff
 async function editStaff(id) {
   try {
-    const res = await axios.get(`${apiUrl}/${id}`, {
-        headers: { Authorization: token }
+    const res = await axios.get(`/api/staff/${id}`, {
+        withCredentials: true
       });
     const staff = res.data;
 
@@ -162,13 +170,15 @@ async function deleteStaff(id) {
   if (!confirmed) return;
 
   try {
-    loader.style.display = "flex";
-    await axios.delete(`/api/staff/${id}`);
+    showLoader();
+    await axios.delete(`/api/staff/${id}`, {
+      withCredentials: true
+    });
     showToast("Staff deleted successfully!");
     fetchAllStaff();
   } catch (err) {
     console.error("Error deleting staff:", err);
     showError("Error", "Failed to delete staff. Please try again.");
   }
-  loader.style.display = "none";
+  hideLoader();
 }

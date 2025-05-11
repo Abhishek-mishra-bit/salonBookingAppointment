@@ -1,139 +1,179 @@
-/* General Setup */
-body {
-    margin: 0;
-    font-family: 'Poppins', sans-serif;
-    background-color: #f5f5f5;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  /* Navbar */
-  .navbar {
-    padding: 1rem 2rem;
-    background-color: #ffffff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
-  
-  .navbar-brand {
-    font-size: 1.5rem;
-    font-weight: bold;
-  }
-  
-  .navbar .btn {
-    font-weight: 500;
-    border-radius: 8px;
-    padding: 6px 12px;
-  }
-  
-  /* Loader */
-  .loader-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255,255,255,0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    display: none;
-  }
-  
-  .spinner {
-    width: 60px;
-    height: 60px;
-    border: 8px solid #ddd;
-    border-top: 8px solid #3498db;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-  
-  /* Spinner Animation */
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  
-  /* Main Content */
-  main {
-    flex: 1;
-    padding: 2rem;
-  }
-  
-  .container {
-    max-width: 1000px;
-  }
-  
-  h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: 2rem;
-    color: #333;
-  }
-  
-  form {
-    background-color: #ffffff;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  }
-  
-  form h3 {
-    font-size: 1.8rem;
-    margin-bottom: 1rem;
-  }
-  
-  form .form-label {
-    font-weight: 600;
-  }
-  
-  form button {
-    margin-top: 1rem;
-    width: 100%;
-  }
-  
-  /* Staff Table */
-  table {
-    margin-top: 3rem;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  
-  table thead th {
-    background-color: #343a40;
-    color: white;
-  }
-  
-  table tbody tr {
-    background-color: #f8f9fa;
-  }
-  
-  table tbody tr:hover {
-    background-color: #e2e6ea;
-  }
-  
-  .btn-sm {
-    padding: 0.3rem 0.6rem;
-  }
-  
-  /* Footer */
-  footer {
-    background-color: #f8f9fa;
-    text-align: center;
-    padding: 1rem;
-    font-size: 0.9rem;
-    color: #888;
-    margin-top: auto;
-  }
-  
-  /* Responsive */
-  @media (max-width: 768px) {
-    .navbar .d-flex {
-      flex-direction: column;
-      gap: 0.5rem;
+
+    :root {
+      --salon-primary: #8a6d62; /* Earthy brown */
+      --salon-secondary: #d4b8a7; /* Light beige */
+      --salon-accent: #c17c74; /* Dusty rose */
+      --salon-dark: #4a3f35; /* Dark brown */
+      --salon-light: #f8f4f0; /* Cream */
+      --salon-success: #9aab89; /* Sage green */
+      --salon-info: #7aa2b8; /* Soft blue */
     }
-  }
-  
+    
+    body {
+      background-color: var(--salon-light);
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .navbar {
+      background-color: var(--salon-dark) !important;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+      padding: 15px 0;
+    }
+    
+    .navbar-brand {
+      color: var(--salon-light) !important;
+      font-weight: 700;
+      font-size: 1.5rem;
+    }
+    
+    .navbar-brand span.text-primary {
+      color: var(--salon-secondary) !important;
+    }
+    
+    .btn-primary {
+      background-color: var(--salon-primary);
+      border-color: var(--salon-primary);
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--salon-dark);
+      border-color: var(--salon-dark);
+    }
+    
+    .btn-warning {
+      background-color: var(--salon-accent);
+      border-color: var(--salon-accent);
+      color: white;
+    }
+    
+    .btn-warning:hover {
+      background-color: #b56a63;
+      border-color: #b56a63;
+    }
+    
+    .btn-success {
+      background-color: var(--salon-success);
+      border-color: var(--salon-success);
+    }
+    
+    .btn-success:hover {
+      background-color: #7e8f6d;
+      border-color: #7e8f6d;
+    }
+    
+    .btn-info {
+      background-color: var(--salon-info);
+      border-color: var(--salon-info);
+    }
+    
+    .btn-info:hover {
+      background-color: #5d8ba8;
+      border-color: #5d8ba8;
+    }
+    
+    .card {
+      border: none;
+      border-radius: 10px;
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      height: 100%;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+    }
+    
+    .section-header {
+      color: var(--salon-dark);
+      font-weight: 700;
+      position: relative;
+      padding-bottom: 15px;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    
+    .section-header:after {
+      content: '';
+      display: block;
+      width: 80px;
+      height: 3px;
+      background: var(--salon-accent);
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    
+    .form-container {
+      background-color: white;
+      border-radius: 10px;
+      padding: 2rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      margin-bottom: 3rem;
+    }
+    
+    .table-container {
+      background-color: white;
+      border-radius: 10px;
+      padding: 2rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .table {
+      margin-bottom: 0;
+    }
+    
+    .table thead th {
+      background-color: var(--salon-secondary);
+      color: var(--salon-dark);
+      border-bottom: none;
+    }
+    
+    .table-hover tbody tr:hover {
+      background-color: rgba(138, 109, 98, 0.1);
+    }
+    
+    .badge-available {
+      background-color: var(--salon-success);
+      color: white;
+    }
+    
+    .badge-unavailable {
+      background-color: var(--salon-accent);
+      color: white;
+    }
+    
+    .nav-btn {
+      border-radius: 25px;
+      padding: 8px 15px;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    
+    .nav-btn i {
+      margin-right: 5px;
+    }
+    
+    footer {
+      background-color: var(--salon-dark);
+      color: white;
+      margin-top: 3rem;
+      padding: 2rem 0;
+    }
+    
+    @media (max-width: 992px) {
+      .navbar-collapse {
+        background-color: var(--salon-dark);
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        margin-top: 10px;
+      }
+      
+      .d-flex.gap-3 {
+        flex-direction: column;
+        gap: 10px !important;
+      }
+    }

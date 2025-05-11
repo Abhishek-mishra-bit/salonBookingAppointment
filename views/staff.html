@@ -1,41 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Manage Staff | Admin</title>
-
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- <link rel="manifest" href="site.webmanifest"> -->
-  <link rel="shortcut icon" type="image/x-icon" href="/public/img/favicon.png">
-  <!-- Place favicon.ico in the root directory -->
-
-  <!-- CSS here -->
-  <link rel="stylesheet" href="/public/css/bootstrap.min.css">
-  <link rel="stylesheet" href="/public/css/owl.carousel.min.css">
-  <link rel="stylesheet" href="/public/css/magnific-popup.css">
-  <link rel="stylesheet" href="/public/css/font-awesome.min.css">
-  <link rel="stylesheet" href="/public/css/themify-icons.css">
-  <link rel="stylesheet" href="/public/css/nice-select.css">
-  <link rel="stylesheet" href="/public/css/flaticon.css">
-  <link rel="stylesheet" href="/public/css/gijgo.css">
-  <link rel="stylesheet" href="/public/css/animate.css">
-  <link rel="stylesheet" href="/public/css/slicknav.css">
-  <link rel="stylesheet" href="/public/css/style.css">
-  <link rel="stylesheet" href="/public/css/responsive.css">
-  <link rel="stylesheet" href="/css/staff.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Staff | Glamour Salon</title>
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/staff.css">
+  
 </head>
 <body>
 
-<!-- 🌟 Header / Navbar (same as dashboard and services) -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <div class="container d-flex justify-content-between align-items-center">
-    <a class="navbar-brand fw-bold" href="#">Salon Booking</a>
-    <div class="d-flex gap-3">
-      <a href="/api/dashboard/page" class="btn btn-primary">Go To Dashboard</a>
-      <a href="/api/services/page" class="btn btn-warning">Manage Services</a>
-      <a href="/api/booking/page" class="btn btn-success">Book Appointment</a>
-      <button class="btn btn-outline-danger" onclick="logout()">Logout</button>
+<!-- Admin Navbar -->
+<nav class="navbar navbar-expand-lg sticky-top">
+  <div class="container">
+    <a class="navbar-brand" href="#">
+      <i class="fas fa-spa me-2"></i><span class="text-primary">Glamour</span> Salon Admin
+    </a>
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <div class="d-flex flex-column flex-lg-row gap-3 ms-lg-auto">
+        <a href="/api/dashboard/page" class="btn nav-btn btn-primary">
+          <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+        </a>
+        <a href="/api/services/page" class="btn nav-btn btn-warning">
+          <i class="fas fa-concierge-bell me-2"></i>Services
+        </a>
+        <a href="/api/admin/page" class="btn nav-btn btn-info">
+          <i class="fas fa-calendar-check me-2"></i>Bookings
+        </a>
+        <button class="btn nav-btn btn-outline-light" onclick="logout()">
+          <i class="fas fa-sign-out-alt me-2"></i>Logout
+        </button>
+      </div>
     </div>
   </div>
 </nav>
@@ -45,300 +50,102 @@
   <div class="spinner"></div>
 </div>
 
-<div class="bg-dark text-light py-5">
-  <div class="container">
-    <h1 class="text-center mb-4">Manage Staff</h1>
-
-    <form id="staffForm" class="bg-secondary p-4 rounded">
-      <h3>Add / Edit Staff</h3>
-      <input type="hidden" id="staffId" />
-
-      <div class="mb-3">
-        <label for="name" class="form-label">Staff Name</label>
-        <input type="text" id="name" class="form-control" required />
+<!-- Main Content -->
+<main class="container my-5">
+  <h1 class="section-header">Manage Staff Members</h1>
+  
+  <div class="form-container">
+    <h3 class="mb-4" style="color: var(--salon-dark);">
+      <i class="fas fa-user-edit me-2" style="color: var(--salon-primary);"></i>
+      Add/Edit Staff
+    </h3>
+    
+    <form id="staffForm">
+      <input type="hidden" id="staffId">
+      
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="name" class="form-label">Full Name</label>
+          <input type="text" class="form-control" id="name" required 
+                 style="border-color: var(--salon-secondary);">
+        </div>
+        
+        <div class="col-md-6 mb-3">
+          <label for="specialization" class="form-label">Specialization</label>
+          <input type="text" class="form-control" id="specialization" required 
+                 style="border-color: var(--salon-secondary);">
+        </div>
       </div>
-
-      <div class="mb-3">
-        <label for="specialization" class="form-label">Specialization</label>
-        <input type="text" id="specialization" class="form-control" required />
+      
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="email" class="form-label">Email Address</label>
+          <input type="email" class="form-control" id="email" required 
+                 style="border-color: var(--salon-secondary);">
+        </div>
+        
+        <div class="col-md-6 mb-3">
+          <label for="available" class="form-label">Availability</label>
+          <select class="form-select" id="available" required 
+                  style="border-color: var(--salon-secondary);">
+            <option value="true">Available</option>
+            <option value="false">Unavailable</option>
+          </select>
+        </div>
       </div>
-
-      <div class="mb-3">
-        <label for="email" class="form-label">Email</label>
-        <input type="email" id="email" class="form-control" required />
+      
+      <div class="text-end">
+        <button type="submit" class="btn btn-success px-4 py-2">
+          <i class="fas fa-save me-2"></i>Save Staff
+        </button>
       </div>
-
-      <div class="mb-3">
-        <label for="available" class="form-label">Available (true/false)</label>
-        <input type="text" id="available" class="form-control" required />
-      </div>
-
-      <button type="submit" class="btn btn-success">Save Staff</button>
     </form>
-
-    <hr class="my-5" />
-
-    <h2 class="text-center mb-4">Staff List</h2>
-    <table class="table table-dark table-hover" id="staffTable">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Specialization</th>
-          <th>Available</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Staff Rows will be dynamically populated -->
-      </tbody>
-    </table>
   </div>
-</div>
-
- <!-- slider_area_start -->
- <div class="slider_area">
-  <div class="slider_active owl-carousel">
-      <div class="single_slider d-flex align-items-center justify-content-center slider_bg_1 overlay">
-          <div class="container">
-              <div class="row">
-                  <div class="col-lg-6 col-md-8">
-                      <div class="slider_text">
-                          <h3>Modern barber
-                              shop in center
-                              of the city</h3>
-                          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                          <a href="#" class="boxed-btn3">Appointment</a>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-      <div class="single_slider d-flex align-items-center justify-content-center slider_bg_2 overlay">
-          <div class="container">
-              <div class="row">
-                  <div class="col-lg-6 col-md-8">
-                      <div class="slider_text">
-                          <h3>Modern barber
-                              shop in center
-                              of the city</h3>
-                          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                          <a href="#" class="boxed-btn3">Appointment</a>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-      <div class="single_slider d-flex align-items-center justify-content-center slider_bg_3 overlay">
-          <div class="container">
-              <div class="row">
-                  <div class="col-lg-6 col-md-8">
-                      <div class="slider_text">
-                          <h3>Modern barber
-                              shop in center
-                              of the city</h3>
-                          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                          <a href="#" class="boxed-btn3">Appointment</a>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>
+  
+  <div class="table-container">
+    <h3 class="mb-4" style="color: var(--salon-dark);">
+      <i class="fas fa-users me-2" style="color: var(--salon-primary);"></i>
+      Staff Members
+    </h3>
+    
+    <div class="table-responsive">
+      <table class="table table-hover" id="staffTable">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Specialization</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Staff rows will be populated by JavaScript -->
+        </tbody>
+      </table>
+    </div>
   </div>
-</div>
-<!-- slider_area_end -->
+</main>
 
-<!-- about_area_start -->
-<div class="about_area ">
-<div class="container">
+<!-- Footer -->
+<footer>
+  <div class="container">
     <div class="row align-items-center">
-        <div class="col-xl-6 col-lg-6 col-md-6">
-            <div class="about_thumbs">
-                <div class="large_img_1">
-                    <img src="/br-master/br-master/img/about/about_lft.png" alt="">
-                </div>
-                <div class="small_img_1">
-                    <img src="/br-master/br-master/img/about/about_right.png" alt="">
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-6 col-lg-6 col-md-6">
-            <div class="about_info">
-                <div class="section_title mb-20px">
-                    <h3>About Us</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing eliteiusmod tempor incididunt ut labore et dolore magna aliqua. Qpsum suspendisse ultrices gravida. Risus commodo viverra maecenas accumsan lacus vel facilisis. Quis ipsum suspendisse ultr.</p>
-                </div>
-                <p class="opening_hour">
-                    Opening Hour
-                    <span>10:00 am - 10:00 pm</span>
-                </p>
-                <a href="/about" class="boxed-btn3">About Us</a>
-            </div>
-        </div>
+      <div class="col-md-6 text-center text-md-start">
+        <small>&copy; 2025 Glamour Salon Admin. All rights reserved.</small>
+      </div>
+      <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
+        <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
+        <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
+        <a href="#" class="text-white"><i class="fab fa-pinterest"></i></a>
+      </div>
     </div>
-</div>
-</div>
-<!-- about_area_end -->
-
-<div class="service_area">
-<div class="container">
-    <div class="row justify-content-center ">
-        <div class="col-lg-6 col-md-10">
-            <div class="section_title text-center mb-55">
-                <h3>Our Services</h3>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore</p>
-            </div>
-        </div>
-    </div>
-    <div class="row justify-content-center">
-        <div class="col-lg-4 col-md-6">
-            <div class="single_service">
-                 <div class="service_thumb">
-                     <img src="/br-master/br-master/img/service/1.png" alt="">
-                 </div>
-                 <div class="service_content text-center">
-                    <div class="icon">
-                        <i class="flaticon-shave"></i>
-                    </div>
-                    <h3>Smooth Shave</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut</p>
-                 </div>
-            </div>
-        </div>
-        <div class="col-lg-4 col-md-6">
-            <div class="single_service">
-                 <div class="service_thumb">
-                     <img src="/br-master/br-master/img/service/2.png" alt="">
-                 </div>
-                 <div class="service_content text-center">
-                    <div class="icon">
-                        <i class="flaticon-barber"></i>
-                    </div>
-                    <h3>Beard Triming</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut</p>
-                 </div>
-            </div>
-        </div>
-        <div class="col-lg-4 col-md-6">
-            <div class="single_service">
-                 <div class="service_thumb">
-                     <img src="/br-master/br-master/img/service/3.png" alt="">
-                 </div>
-                 <div class="service_content text-center">
-                    <div class="icon">
-                        <i class="flaticon-null"></i>
-                    </div>
-                    <h3>Haircut Styles</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut</p>
-                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-</div>   
-
-<!-- footer_start  -->
-<footer class="footer">
-<div class="footer_top">
-    <div class="container">
-        <div class="row">
-            <div class="col-xl-5 col-md-6 col-lg-5 ">
-                <div class="footer_widget">
-                    <div class="footer_logo">
-                        <a href="#">
-                            <img src="/public/img/logo.png" alt="">
-                        </a>
-                    </div>
-                    <p class="address_text">Lorem ipsum dolor sit amet, consectetur <br> adipiscing elit, sed do eiusmod tempor <br> incididunt ut labore et dolore magna aliqua. <br> Quis ipsum suspendisse.
-                    </p>
-                    <div class="socail_links">
-                        <ul>
-                            <li>
-                                <a href="#">
-                                    <i class="ti-facebook"></i>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <i class="ti-twitter-alt"></i>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <i class="fa fa-dribbble"></i>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <i class="fa fa-instagram"></i>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-3 col-md-6 col-lg-3">
-                <div class="footer_widget">
-                    <h3 class="footer_title">
-                        Information
-                    </h3>
-                    <ul class="links">
-                        <li><a href="#">About</a></li>
-                        <li><a href="#">Services</a></li>
-                        <li><a href="#">Testimonial</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="col-xl-2  col-md-6 col-lg-2">
-                <div class="footer_widget">
-                    <h3 class="footer_title">
-                        Services
-                    </h3>
-                    <ul class="links">
-                        <li><a href="#">Smooth Shave </a></li>
-                        <li><a href="#">Beard Triming</a></li>
-                        <li><a href="#"> Haircut Styles</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="col-xl-2  col-md-6 col-lg-2">
-                <div class="footer_widget">
-                    <h3 class="footer_title">
-                        Follow Us
-                    </h3>
-                    <ul class="links">
-                        <li><a href="#">FaceBook</a></li>
-                        <li><a href="#">Instagram</a></li>
-                        <li><a href="#"> Twitter</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="copy-right_text">
-    <div class="container">
-        <div class="row">
-            <div class="col-xl-12">
-                <p class="copy_right text-center">
-                    <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                    Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
-                    <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
+  </div>
 </footer>
-<!-- footer_end  -->
 
 <!-- Scripts -->
-<script src="/public/style-js/modernizr-3.5.0.min.js"></script>
-<script src="/public/style-js/jquery-1.12.4.min.js"></script>
-<script src="/public/style-js/jquery.slicknav.min.js"></script>
-<script src="/public/style-js/bootstrap.min.js"></script>
-<script src="/public/style-js/owl.carousel.min.js"></script>
-<script src="/public/style-js/popper.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="/js/staff.js"></script>
@@ -349,6 +156,5 @@ function logout() {
   window.location.href = "/api/auth/login";
 }
 </script>
-
 </body>
 </html>
