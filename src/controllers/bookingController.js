@@ -6,7 +6,7 @@ const Service = require("../models/serviceModel");
 const Staff = require("../models/staffModel")
 
 exports.getBookingPage = async (req, res) =>{
-    res.sendFile(path.join(rootDir,"views","booking.html"));    
+    res.sendFile(path.join(rootDir,"src/views","booking.html"));    
 }
 
 exports.createBooking = async (req, res) => {

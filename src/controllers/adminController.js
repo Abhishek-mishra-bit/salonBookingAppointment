@@ -13,7 +13,7 @@ const { Op } = require("sequelize");
 const bcrypt = require("bcryptjs");
 
 exports.getAllBookingPage = async(req, res)=>{
-  res.sendFile(path.join(rootDir, "views", "admin-dashboard.html"));  
+  res.sendFile(path.join(rootDir, "src/views", "admin-dashboard.html"));  
 }
 
 exports.getAllBookings = async (req, res) => {

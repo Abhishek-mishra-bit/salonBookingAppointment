@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', async function() {
           <a href="/api/staff/page" class="btn nav-btn ${isStaffPage ? 'btn-warning active' : 'btn-outline-warning'}">
             <i class="fas fa-user-tie me-2"></i>Staff
           </a>
-          <a href="/api/admin/appointments" class="btn nav-btn ${isBookingsPage ? 'btn-success active' : 'btn-outline-success'}">
+          <a href="/admin-appointments.html" class="btn nav-btn ${isBookingsPage ? 'btn-success active' : 'btn-outline-success'}">
             <i class="fas fa-calendar-check me-2"></i>Bookings
           </a>
           <button class="btn nav-btn btn-outline-danger" id="logoutBtn" onclick="logout()">

@@ -16,14 +16,14 @@ exports.getDashboardPage = async (req, res) => {
       if (!userId) return res.status(401).send("Unauthorized");
 
       if (user.role === 'admin') {
-        return res.sendFile(path.join(rootDir, 'views', 'admin-dashboard.html'));
+        return res.sendFile(path.join(rootDir, 'src/views', 'admin-dashboard.html'));
       } else if (user.role === 'customer') {
-        return res.sendFile(path.join(rootDir, 'views', 'customer-dashboard.html'));
+        return res.sendFile(path.join(rootDir, 'src/views', 'customer-dashboard.html'));
       } else if (user.role === 'staff') {
-        return res.sendFile(path.join(rootDir, 'views', 'staff-dashboard.html'));
+        return res.sendFile(path.join(rootDir, 'src/views', 'staff-dashboard.html'));
       } else {
         // fallback for any other role
-        return res.sendFile(path.join(rootDir, 'views', 'dashboard.html'));
+        return res.sendFile(path.join(rootDir, 'src/views', 'dashboard.html'));
       }
     } catch (err) {
       console.error(err);

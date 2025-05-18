@@ -6,7 +6,7 @@ const path = require("path");
 
 
 exports.getStaffPage = async (req, res)=>{
-    res.sendFile(path.join(rootDir,"views","staff.html"));
+    res.sendFile(path.join(rootDir,"src/views","staff.html"));
 };
 // ➡ Add New Staff
 exports.addStaff = async (req, res) => {

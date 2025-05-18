@@ -20,6 +20,30 @@
   background-image: -ms-linear-gradient(170deg, rgba(34, 34, 34, 0) 0%, black 100%);
 }
 
+/* Mobile Menu Styles */
+.mobile_menu {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    width: 30px;
+    height: 30px;
+    background: #000;
+    color: #fff;
+    text-align: center;
+    line-height: 30px;
+    cursor: pointer;
+    z-index: 999;
+}
+
+@media (max-width: 991px) {
+    .main-menu {
+        display: none;
+        width: 100%;
+    }
+    .main-menu ul {
+        flex-direction: column;
+    }
+}
 /* Normal desktop :1200px. */
 /* Normal desktop :992px. */
 /* Tablet desktop :768px. */
@@ -1413,8 +1437,10 @@ h3 {
     position: absolute;
     right: 0;
     bottom: 0;
-    border-top: 15px solid #ffffff;
-    border-left: 15px solid #ffffff;
+    border-top: 15px solid
+ #ffffff;
+    border-left: 15px solid
+ #ffffff;
     top: auto;
     width: 50%;
     height: 60%;

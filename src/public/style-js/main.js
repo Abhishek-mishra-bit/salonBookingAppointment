@@ -12,7 +12,16 @@ $(window).on('scroll', function () {
 	}
 });
 
-
+// Mobile Menu
+$('.mobile_menu').on('click', function() {
+    $('body').toggleClass('mobile-menu-active');
+    $('.main-menu').slideToggle();
+});
+$('#navigation').slicknav({
+    prependTo: '.mobile_menu',
+    label: '',
+    allowParentLinks: true
+});
 $(document).ready(function(){
 
 // mobile_menu

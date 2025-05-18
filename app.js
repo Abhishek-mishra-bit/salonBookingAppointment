@@ -33,7 +33,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(express.static(path.join(__dirname, "src", "public")));
 app.use('/public', express.static(path.join(__dirname, 'src/public')));
-app.use(express.static(path.join(__dirname, 'views')));
+app.use(express.static(path.join(__dirname, 'src/views')));
 
 // Serve the landing page at "/"
 app.get("/", (req, res) => {

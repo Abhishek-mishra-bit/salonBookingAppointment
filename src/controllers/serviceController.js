@@ -5,7 +5,7 @@ const { Op } = require('sequelize');
 const Booking = require("../models/bookingModel") 
 
 exports.getServicesPage = async(req, res)=>{
-    res.sendFile(path.join(rootDir,"views","services.html"));
+    res.sendFile(path.join(rootDir,"src/views","services.html"));
 };
 
 // Add Service

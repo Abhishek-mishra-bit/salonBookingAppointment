@@ -6,11 +6,11 @@ const path = require("path");
 
 
 exports.getRegisterationPage=async(req, res)=>{
-    res.sendFile(path.join(rootDir, "views", "signup.html"));
+    res.sendFile(path.join(rootDir, "src/views", "signup.html"));
 }
 
 exports.getLoginPage = async(req, res)=>{
-    res.sendFile(path.join(rootDir, "views", "login.html"));
+    res.sendFile(path.join(rootDir, "src/views", "login.html"));
 }
 exports.register = async (req, res) => {
   try {

@@ -1,189 +1,275 @@
 :root {
-  --salon-primary: #8a6d62; /* Earthy brown */
-  --salon-secondary: #d4b8a7; /* Light beige */
-  --salon-accent: #c17c74; /* Dusty rose */
-  --salon-dark: #4a3f35; /* Dark brown */
-  --salon-light: #f8f4f0; /* Cream */
-  --salon-success: #9aab89; /* Sage green */
-  --salon-info: #7aa2b8; /* Soft blue */
-}
-
-body {
-  background-color: var(--salon-light);
-  font-family: 'Inter', sans-serif;
-}
-
-.navbar {
-  background-color: white !important;
-  box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-  padding: 15px 0;
-}
-
-.navbar-brand {
-  color: var(--salon-dark) !important;
-  font-weight: 700;
-  font-size: 1.5rem;
-}
-
-.navbar-brand span.text-primary {
-  color: var(--salon-primary) !important;
-}
-
-.btn-primary {
-  background-color: var(--salon-primary);
-  border-color: var(--salon-primary);
-}
-
-.btn-primary:hover {
-  background-color: var(--salon-dark);
-  border-color: var(--salon-dark);
-}
-
-.btn-warning {
-  background-color: var(--salon-accent);
-  border-color: var(--salon-accent);
-  color: white;
-}
-
-.btn-warning:hover {
-  background-color: #b56a63;
-  border-color: #b56a63;
-}
-
-.btn-success {
-  background-color: var(--salon-success);
-  border-color: var(--salon-success);
-}
-
-.btn-success:hover {
-  background-color: #7e8f6d;
-  border-color: #7e8f6d;
-}
-
-.btn-info {
-  background-color: var(--salon-info);
-  border-color: var(--salon-info);
-}
-
-.card {
-  border: none;
-  border-radius: 10px;
-  overflow: hidden;
-  transition: transform 0.3s, box-shadow 0.3s;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
-}
-
-.card-title {
-  color: var(--salon-dark);
-  font-weight: 700;
-  position: relative;
-  padding-bottom: 15px;
-  text-align: center;
-}
-
-.card-title:after {
-  content: '';
-  display: block;
-  width: 50px;
-  height: 3px;
-  background: var(--salon-accent);
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.table {
-  --bs-table-bg: transparent;
-}
-
-.table th {
-  background-color: var(--salon-primary);
-  color: white;
-  font-weight: 600;
-}
-
-.table-hover tbody tr:hover {
-  background-color: rgba(212, 184, 167, 0.2);
-}
-
-.badge {
-  padding: 0.5em 0.75em;
-  font-weight: 600;
-}
-
-.badge-confirmed {
-  background-color: var(--salon-success);
-}
-
-.badge-pending {
-  background-color: var(--salon-accent);
-}
-
-.badge-cancelled {
-  background-color: #dc3545;
-}
-
-.badge-completed {
-  background-color: var(--salon-info);
-}
-
-.action-btn {
-  width: 30px;
-  height: 30px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  margin: 0 3px;
-}
-
-.modal-content {
-  border-radius: 10px;
-  border: none;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-}
-
-.modal-header {
-  background-color: var(--salon-primary);
-  color: white;
-  border-radius: 10px 10px 0 0;
-}
-
-footer {
-  background-color: var(--salon-dark);
-  color: white;
-  margin-top: 3rem;
-  padding: 2rem 0;
-}
-
-.nav-btn {
-  border-radius: 25px;
-  padding: 8px 15px;
-  font-weight: 500;
-  transition: all 0.3s;
-}
-
-.nav-btn i {
-  margin-right: 5px;
-}
-
-@media (max-width: 992px) {
-  .navbar-collapse {
-    background-color: white;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    margin-top: 10px;
-  }
-  
-  .d-flex.gap-3 {
-    flex-direction: column;
-    gap: 10px !important;
-  }
-}
+      --salon-primary: #8a6d62; /* Earthy brown */
+      --salon-secondary: #d4b8a7; /* Light beige */
+      --salon-accent: #c17c74; /* Dusty rose */
+      --salon-dark: #4a3f35; /* Dark brown */
+      --salon-light: #f8f4f0; /* Cream */
+      --salon-success: #9aab89; /* Sage green */
+      --salon-info: #7aa2b8; /* Soft blue */
+    }
+    
+    body {
+      background-color: var(--salon-light);
+      font-family: 'Inter', sans-serif;
+      color: var(--salon-dark);
+    }
+    
+    .navbar {
+      background-color: var(--salon-dark) !important;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+      padding: 15px 0;
+    }
+    
+    .navbar-brand {
+      color: var(--salon-light) !important;
+      font-weight: 700;
+      font-size: 1.5rem;
+    }
+    
+    .navbar-brand span {
+      color: var(--salon-secondary) !important;
+    }
+    
+    .btn-primary {
+      background-color: var(--salon-primary);
+      border-color: var(--salon-primary);
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--salon-dark);
+      border-color: var(--salon-dark);
+    }
+    
+    .btn-warning {
+      background-color: var(--salon-accent);
+      border-color: var(--salon-accent);
+      color: white;
+    }
+    
+    .btn-warning:hover {
+      background-color: #b56a63;
+      border-color: #b56a63;
+    }
+    
+    .btn-success {
+      background-color: var(--salon-success);
+      border-color: var(--salon-success);
+    }
+    
+    .btn-success:hover {
+      background-color: #7e8f6d;
+      border-color: #7e8f6d;
+    }
+    
+    .btn-info {
+      background-color: var(--salon-info);
+      border-color: var(--salon-info);
+    }
+    
+    .btn-info:hover {
+      background-color: #5d8ba8;
+      border-color: #5d8ba8;
+    }
+    
+    .btn-outline-primary {
+      color: var(--salon-primary);
+      border-color: var(--salon-primary);
+    }
+    
+    .btn-outline-primary:hover {
+      background-color: var(--salon-primary);
+      color: white;
+    }
+    
+    .card {
+      border: none;
+      border-radius: 10px;
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      background-color: white;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    
+    .card-body {
+      padding: 2rem;
+    }
+    
+    .card-title {
+      color: var(--salon-dark);
+      font-weight: 700;
+      position: relative;
+      padding-bottom: 15px;
+      margin-bottom: 1.5rem;
+    }
+    
+    .card-title:after {
+      content: '';
+      display: block;
+      width: 50px;
+      height: 3px;
+      background: var(--salon-accent);
+      position: absolute;
+      bottom: 0;
+      left: 0;
+    }
+    
+    .table {
+      margin-bottom: 0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    
+    .table th {
+      background-color: var(--salon-dark);
+      color: var(--salon-light);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+      padding: 1rem;
+    }
+    
+    .table td {
+      vertical-align: middle;
+      padding: 1rem;
+      border-color: rgba(0,0,0,0.05);
+    }
+    
+    .badge {
+      font-weight: 500;
+      padding: 0.5em 0.75em;
+      border-radius: 50px;
+      text-transform: capitalize;
+    }
+    
+    .bg-success {
+      background-color: var(--salon-success) !important;
+    }
+    
+    .bg-warning {
+      background-color: var(--salon-accent) !important;
+      color: white !important;
+    }
+    
+    .bg-danger {
+      background-color: #c17c74 !important;
+    }
+    
+    .btn-sm {
+      padding: 0.35rem 0.65rem;
+      font-size: 0.85rem;
+      border-radius: 5px;
+    }
+    
+    .pagination {
+      justify-content: center;
+      margin-top: 2rem;
+    }
+    
+    .page-item.active .page-link {
+      background-color: var(--salon-primary);
+      border-color: var(--salon-primary);
+    }
+    
+    .page-link {
+      color: var(--salon-primary);
+      border-color: #ddd;
+    }
+    
+    .status-filter {
+      margin-bottom: 1.5rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    
+    .status-filter .btn {
+      text-transform: capitalize;
+      border-radius: 5px;
+      font-size: 0.85rem;
+      padding: 0.35rem 0.75rem;
+    }
+    
+    .modal-header {
+      background-color: var(--salon-dark);
+      color: var(--salon-light);
+      border-bottom: none;
+      padding: 1.5rem;
+    }
+    
+    .modal-title {
+      font-weight: 600;
+    }
+    
+    .modal-body {
+      padding: 1.5rem;
+    }
+    
+    .modal-footer {
+      background-color: var(--salon-light);
+      border-top: none;
+      padding: 1rem 1.5rem;
+    }
+    
+    .form-control {
+      border-radius: 5px;
+      padding: 0.5rem 0.75rem;
+      border-color: #ddd;
+    }
+    
+    .form-control:focus {
+      border-color: var(--salon-primary);
+      box-shadow: 0 0 0 0.25rem rgba(138, 109, 98, 0.25);
+    }
+    
+    footer {
+      background-color: var(--salon-dark);
+      color: var(--salon-light);
+      padding: 2rem 0;
+      margin-top: 3rem;
+    }
+    
+    .social-icon {
+      color: var(--salon-light);
+      transition: color 0.3s;
+    }
+    
+    .social-icon:hover {
+      color: var(--salon-secondary);
+    }
+    
+    @media (max-width: 768px) {
+      .table-responsive {
+        border: none;
+      }
+      
+      .table th, .table td {
+        padding: 0.75rem;
+        font-size: 0.85rem;
+      }
+      
+      .card-body {
+        padding: 1.5rem;
+      }
+      
+      .status-filter {
+        margin-top: 1rem;
+      }
+      
+      .card-title:after {
+        left: 50%;
+        transform: translateX(-50%);
+      }
+    }
+    
+    /* Loading spinner */
+    .spinner-border {
+      width: 2rem;
+      height: 2rem;
+      border-width: 0.2em;
+    }

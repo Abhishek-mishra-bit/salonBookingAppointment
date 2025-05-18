@@ -5,7 +5,7 @@ const path = require('path');
 const rootDir = require('../utils/path');
 
 exports. getReviewPage = (req, res) => {
-    res.sendFile(path.join(rootDir, 'views', 'review.html'));
+    res.sendFile(path.join(rootDir, 'src/views', 'review.html'));
   };
 
 // ⭐ Add a Review
