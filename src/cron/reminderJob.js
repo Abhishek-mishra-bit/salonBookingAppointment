@@ -7,9 +7,9 @@ const { Op } = require("sequelize");
 const User = require("../models/userModel");
 
 
-// 🕑 Every day at 8AM
+// Every day at 8AM
 cron.schedule("0 8 * * *", async () => {
-  console.log("📨 Sending appointment reminders...");
+  console.log("Sending appointment reminders...");
 
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);

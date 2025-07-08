@@ -176,7 +176,7 @@ function initializeAnalytics() {
     
     // Update metrics
     document.getElementById('totalBookings').textContent = data.totalBookings || 0;
-    document.getElementById('totalRevenue').textContent = '$' + (data.totalRevenue || 0).toFixed(2);
+    document.getElementById('totalRevenue').textContent = '₹' + Number(data.totalRevenue || 0).toFixed(2);
     document.getElementById('activeStaff').textContent = data.activeStaff || 0;
     document.getElementById('totalCustomers').textContent = data.totalCustomers || 0;
     

@@ -61,8 +61,8 @@ exports.login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
-    // Check role if provided
-    
+    // Check role if provided   
+
 
     const token = generateToken(user);
     // Set JWT as HttpOnly cookie

@@ -11,8 +11,6 @@ exports.getBookingPage = async (req, res) =>{
 
 exports.createBooking = async (req, res) => {
   try {
-    console.log('Creating booking:', req.body);
-    console.log('User ID:', req.user.id);
     
     const { serviceId, staffId, date, time } = req.body;
     const service = await Service.findByPk(serviceId);
@@ -87,7 +85,7 @@ exports.getUserBookings = async (req, res) => {
 exports.processPayment = async (req, res) => {
   try {
     const { bookingId, transactionId } = req.body;
-  
+      
 
     const booking = await Booking.findByPk(bookingId);
     

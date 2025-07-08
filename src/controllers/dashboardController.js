@@ -23,7 +23,7 @@ exports.getDashboardPage = async (req, res) => {
         return res.sendFile(path.join(rootDir, 'src/views', 'staff-dashboard.html'));
       } else {
         // fallback for any other role
-        return res.sendFile(path.join(rootDir, 'src/views', 'dashboard.html'));
+        return res.sendFile(path.join(rootDir, 'src/views', '404.html'));
       }
     } catch (err) {
       console.error(err);

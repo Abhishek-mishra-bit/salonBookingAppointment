@@ -114,33 +114,33 @@ exports.getAnalytics = async (req, res) => {
     const revenueResult = await Payment.findOne({
       attributes: [[sequelize.fn('SUM', sequelize.col('amount')), 'total']],
       where: {
-        status: 'completed'
+        status: 'success'
       }
     });
-    const totalRevenue = revenueResult.getDataValue('total') || 0;
+    const totalRevenue = Number(revenueResult.getDataValue('total')) || 0;
     
     // Revenue this week
     const revenueThisWeekResult = await Payment.findOne({
       attributes: [[sequelize.fn('SUM', sequelize.col('amount')), 'total']],
       where: {
-        status: 'completed',
+        status: 'success',
         createdAt: { [Op.gte]: currentWeekStart }
       }
     });
-    const revenueThisWeek = revenueThisWeekResult.getDataValue('total') || 0;
+    const revenueThisWeek = Number(revenueThisWeekResult.getDataValue('total')) || 0;
     
     // Revenue last week
     const revenueLastWeekResult = await Payment.findOne({
       attributes: [[sequelize.fn('SUM', sequelize.col('amount')), 'total']],
       where: {
-        status: 'completed',
+        status: 'success',
         createdAt: {
           [Op.gte]: previousWeekStart,
           [Op.lt]: currentWeekStart
         }
       }
     });
-    const revenueLastWeek = revenueLastWeekResult.getDataValue('total') || 0;
+    const revenueLastWeek = Number(revenueLastWeekResult.getDataValue('total')) || 0;
     
     // Calculate revenue trend percentage
     let revenueTrend = 0;
